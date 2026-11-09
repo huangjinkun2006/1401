@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; script-src 'self'">
+<title>1401</title>
+<link rel="stylesheet" href="app.css">
+</head><body>
+<div class="desk" id="desk">
+<div class="sky sky1" aria-hidden="true"></div><div class="sky sky2" aria-hidden="true"></div><div class="sky sky3" aria-hidden="true"></div>
+
+<header class="bar">
+<span class="ttl" id="ttl">1401 — 本机</span>
+<button type="button" class="theme" id="theme" aria-label="切换浅色与深色模式">
+<svg class="moon" viewBox="0 0 12 12" aria-hidden="true"><path d="M8.5 7.5A4 4 0 0 1 4.5 2.2a4 4 0 1 0 4 5.3z"/></svg>
+<svg class="sun" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="2.2"/><path d="M6 .8v1.4M6 9.8v1.4M.8 6h1.4M9.8 6h1.4M2.3 2.3l1 1M8.7 8.7l1 1M2.3 9.7l1-1M8.7 3.3l1-1"/></svg>
+<span class="knob"></span></button>
+</header>
+
+<div class="main">
+<nav class="pane side" aria-label="分区">
+<button type="button" class="nav tab on" data-t="drv" data-title="本机"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>本机</button>
+<button type="button" class="nav tab" data-t="efi" data-title="问题检查"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>问题检查<span class="count" id="efin" hidden></span></button>
+<button type="button" class="nav tab" data-t="tools" data-title="工具"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18v12H3z"/><path d="M3 7l3-3h12l3 3M10 12h4"/></svg>工具 · 挂载 EFI</button>
+<button type="button" class="nav tab" data-t="usb" data-title="USB 端口"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v14M8 7l4-4 4 4M7 13h10M9 21h6v-4H9z"/></svg>USB 端口</button>
+<button type="button" class="nav tab" data-t="crash" data-title="发送报告"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H8l-4 4z"/></svg>发送报告</button>
+<div class="sidefoot">驱动 <span id="ver"></span><br><a href="#" id="src">源代码</a> · <a href="#" id="ocg">OpenCore 指南</a></div>
+</nav>
+
+<main class="content">
+
+<section id="t-drv">
+<h1>你的 Mac，一目了然</h1>
+<p class="lede">1401 为运行 macOS 15.5 或更高版本（含 macOS 26 Tahoe）的 OpenCore 黑苹果安装 NullMoth 驱动。<b>请保持引导本机启动的 U 盘或硬盘（OpenCore 所在盘）始终插在电脑上</b>：1401 要改的就是那上面的设置。</p>
+<table class="pc"><tbody id="mac"><tr><th>检测中...</th><td>稍等片刻</td></tr></tbody></table>
+
+<div id="verdict" class="pane card"></div>
+
+<div id="steps" class="pane card" hidden>
+<p class="sh">操作流程</p>
+<ol class="todo">
+<li id="s1"><b>获取驱动。</b> <span id="s1t"></span> <button type="button" class="b go" id="dl" hidden>下载驱动</button> <span id="dlp"></span></li>
+<li id="s2"><b>先看清楚再动手。</b> 1401 会读取你的 OpenCore 配置，并列出它将做出的每一项更改——不做任何实际改动。（macOS 会要求输入密码。） <button type="button" class="b" id="dry" disabled>预览更改</button></li>
+<li id="s3"><b>安装。</b> 先备份你的 OpenCore 配置，然后精确执行上面列出的更改，安装驱动，并在启动菜单中添加 <i>1401: Remove NVIDIA driver</i>（卸载 NVIDIA 驱动）回退项。 <button type="button" class="b go" id="go" disabled>安装驱动</button></li>
+<li id="s4"><b>重启。</b> 如果 macOS 提示系统扩展被阻止，请打开 <a href="#" id="priv">隐私与安全性</a>，点击允许，然后再重启一次。 <button type="button" class="b" id="rs" disabled>立即重启</button></li>
+</ol>
+<p id="efirow" hidden>无法确认启动分区。请选择本机启动时所用的 OpenCore 分区： <select id="efi"></select></p>
+</div>
+
+<div id="logwrap" class="pane card" hidden><p class="sh">1401 正在做什么</p><pre id="log" aria-live="polite"></pre>
+<p class="small"><a href="#" id="logs">打开日志文件夹</a></p></div>
+
+<div class="pane card"><p class="sh">更新</p>
+<p>1401 会检查最新的 NullMoth 驱动和最新的 1401 应用。应用会自我更新并重新打开；驱动会先下载，与官方公布的 SHA-256 校验后，按与上面相同的流程安装，安装前会先备份你的 OpenCore 配置。</p>
+<p class="row"><button type="button" class="b go" id="updchk">检查更新</button> <button type="button" class="b go" id="upddrv" hidden>更新驱动</button> <button type="button" class="b go" id="updapp" hidden>更新应用</button> <span id="updr"></span></p>
+<p><b>抢先更新。</b> 新驱动会先推送给打开此选项的用户，等他们的机器验证没有问题后再向所有人发布。打开它可提前一两天拿到新版本，并在出现问题时上报日志。</p>
+<p class="row"><button type="button" class="b" id="earlyon">开启抢先更新</button> <button type="button" class="b" id="earlyoff" hidden>关闭抢先更新</button> <span id="earlyr"></span></p></div>
+
+<div class="pane card"><p class="sh">更新到 macOS 26 Tahoe</p>
+<p>在 macOS 15 上，<b>为本机准备 Tahoe</b> 会安装或更新驱动并暂停其加载，同时向安装器提供其所需的小容量 GPU BAR 以保证安装界面正常显示。随后在软件更新中安装 macOS 26；更新后的首次开机会自动完成 Tahoe 版驱动的设置并自行重启一次。<b>取消 Tahoe 准备</b>则会恢复一切原状。</p>
+<p class="row"><button type="button" class="b" id="upd" disabled>为本机准备 Tahoe</button> <button type="button" class="b" id="swu" hidden>打开软件更新</button> <button type="button" class="b" id="updc">取消 Tahoe 准备</button> <span id="updt"></span></p></div>
+
+<div class="pane card"><p class="sh">如果重启后出了问题</p>
+<p>在 OpenCore 启动菜单选择 <b>1401: Remove NVIDIA driver</b>，再选你的 macOS 磁盘。1401 会移除驱动并重启，本机即恢复到安装前的状态（包括 OpenCore 配置）。屏幕可能保持黑屏直到第二次重启完成。</p>
+<p class="row"><button type="button" class="b" id="rm">卸载驱动</button></p></div>
+</section>
+
+<section id="t-efi" hidden>
+<div class="head"><div><h1>检查我的 EFI</h1>
+<p class="lede">将本机启动所用的 OpenCore 配置与同类机型验证可行的设置做对比，解释需要修改的地方并给出步骤。它只读取、不做任何更改。会要求输入一次密码。</p></div>
+<button type="button" class="b go" id="efichk">检查我的 EFI</button></div>
+<p id="efichkr"></p>
+<div id="efiout"></div>
+</section>
+
+<section id="t-tools" hidden>
+<h1>工具</h1>
+<div class="pane card"><p class="sh">挂载 EFI</p>
+<p>EFI 分区存放着你的引导设置。1401 会找到本机启动所用的那个分区，挂载并在访达中打开。会要求输入一次密码。</p>
+<p class="row"><button type="button" class="b go" id="efimount">挂载 EFI</button> <span id="efimountr"></span></p></div>
+<div class="pane card"><p class="sh">启动文字（啰嗦模式）</p>
+<p>开机时显示 macOS 的启动过程，代替苹果标志。开机卡住时很有用。下次重启后生效。</p>
+<p class="row"><button type="button" class="b" id="vbon">开启啰嗦模式</button> <button type="button" class="b" id="vboff">关闭啰嗦模式</button></p></div>
+<div class="pane card"><p class="sh">内置屏幕亮度（笔记本）</p>
+<p>适用于内置屏幕直连 NVIDIA GPU 的笔记本（MUX 已设为 Discrete 或 dGPU）。它让驱动从笔记本固件读取屏幕亮度控制。默认关闭，因为该调用曾导致部分电脑在 GPU 启动时卡住；如果你也卡在那里，请在启动菜单选择 <b>1401: Start once without NVIDIA driver</b>，然后在这里把它关掉。</p>
+<p class="row"><button type="button" class="b" id="blon">开启亮度控制</button> <button type="button" class="b" id="bloff">关闭</button></p></div>
+<div class="pane card"><p class="sh">HiDPI（Retina）分辨率</p>
+<p>让 HiDPI 的"逻辑分辨率"生效，例如在 2560 x 1440 屏幕上使用 1920 x 1080，包括用 BetterDisplay 等工具添加的分辨率。没有它，这类分辨率会被拒绝并回退。驱动会以最高两倍于屏幕尺寸的分辨率绘制桌面，显存占用会更大。下次重启后生效。</p>
+<p class="row"><button type="button" class="b" id="hdon">开启 HiDPI 分辨率</button> <button type="button" class="b" id="hdoff">关闭</button></p></div>
+<div class="pane card"><p class="sh">AMD / Intel GPU 和 NPU 驱动（测试）</p>
+<p>面向 macOS 没有驱动的 AMD 和 Intel GPU（Ryzen APU、Radeon RX 7000/9000、Intel Iris Xe 与 Arc 显卡），以及 Intel Core Ultra 和 AMD Ryzen AI 处理器中的 NPU。这是早期测试版：你"发送日志"上报的信息就是它被修好的途径。它只从 linux-firmware 下载你的 GPU 和 NPU 所需的固件（每个文件都校验），下次重启后生效。</p>
+<p>如果这块 GPU 正在驱动你的屏幕，屏幕可能保持黑屏。那时请在启动菜单选择 <b>1401: Start once without NVIDIA driver</b>（它也会暂停该驱动），然后在这里关掉。</p>
+<p class="row"><button type="button" class="b" id="gpuon">开启测试驱动</button> <button type="button" class="b" id="gpuoff">关闭</button></p>
+<p><b>测试计划。</b> 测试驱动开启期间，1401 会在每次重启后发送一份简短报告：驱动的内核消息、崩溃记录，以及你的 GPU 型号和构建版本（姓名和序列号已移除）。随时可以退出。</p>
+<p class="row"><button type="button" class="b" id="teston">加入测试计划</button> <button type="button" class="b" id="testoff">退出</button> <span id="testr"></span></p></div>
+<div class="pane card" id="xecard" hidden><p class="sh">Intel Xe 显卡（WhateverXe，测试）</p>
+<p>面向 macOS 15.8 / 26.7 及更高版本上的 Tiger Lake、Alder Lake 和 Raptor Lake Intel 显卡。它使用 b00t0x 的 <a href="https://github.com/b00t0x/WhateverXe">WhateverXe</a>：1401 先把它加入 OpenCore，你重启后再按一次<b>开启</b>来安装其显卡组件。这些组件直接来自作者的 GitHub，逐个校验。开启期间 WhateverGreen 会被关闭；<b>关闭</b>会恢复一切。</p>
+<p>如果重启后屏幕黑屏，请在启动菜单选择 <b>1401: Start once without NVIDIA driver</b>：那次启动同样不会加载 WhateverXe。然后在这里关掉。</p>
+<p class="row"><button type="button" class="b" id="xeon">开启</button> <button type="button" class="b" id="xeoff">关闭</button></p></div>
+<div class="pane card"><p class="sh">麦克风与摄像头</p>
+<p>装上驱动后，macOS 在应用使用麦克风或摄像头前不再询问，导致 Discord 之类的应用只有静音，也永远不会出现在"隐私与安全性"里。在这里选择应用，授权其使用麦克风、摄像头和屏幕录制。</p>
+<p class="row"><button type="button" class="b" id="tccg">选择一个应用...</button> <span id="tccr"></span></p></div>
+<div class="pane card"><p class="sh">测绘我的 GPU（实验性）</p>
+<p>对本机 GPU 做几分钟的测量：Metal 报告的内容、正确性检查、显存与算力速度，以及小型测试着色器。不做任何更改，也不动显示模式。结果保存在日志文件夹，"发送日志"会上传它，让下一版驱动能为你的显卡调优。</p>
+<p class="row"><button type="button" class="b" id="gpumap">测绘我的 GPU</button> <span id="gpumapr"></span></p></div>
+<div class="pane card" id="armcard"><p class="sh">ARM 应用（自愿开启）</p>
+<div id="armreq" hidden><p><b id="armreqt"></b></p>
+<p class="row"><button type="button" class="b go" id="armreqon" hidden>开启</button> <a href="#" id="armreqno">暂不</a></p></div>
+<p>专为 Apple 芯片构建的应用可以被转译到本机运行。小应用转译需几分钟，大应用可能要一小时以上。原应用不会被改动：转译副本存放在"应用程序 &gt; NullMoth ARM"。关闭此功能会移除转译器和已转译的副本，你的 2.7 驱动不受影响。</p>
+<p class="row"><button type="button" class="b" id="armon">开启</button> <button type="button" class="b" id="armoff" hidden>关闭</button> <button type="button" class="b" id="armchk" hidden>检查本机</button> <button type="button" class="b" id="armclt" hidden>安装命令行工具</button> <button type="button" class="b go" id="armtr" hidden disabled>转译一个应用...</button></p>
+<p id="armr"></p>
+<div id="armprog" hidden><progress id="armbar" max="100" style="width:100%"></progress>
+<p class="row"><span id="armmsg" class="small"></span> <button type="button" class="b" id="armcancel">取消</button></p></div>
+<div id="armapps"></div>
+<div id="armbrew" hidden><p><b>Homebrew</b></p>
+<p class="small">与 Apple 芯片 Mac 一样并排使用两套 Homebrew：ARM 版在 /opt/homebrew，安装 Homebrew 的 Apple 芯片软件包并为本机转译；Intel 版在 /usr/local，原生运行但多数要从源码构建，因为 Homebrew 已停止发布 Intel 软件包。在终端里，<code>abrew</code> 始终是 ARM，<code>ibrew</code> 始终是 Intel，<code>brew</code> 则由你在下面选择。</p>
+<p class="row"><select id="armbrewpick"><option value="both">ARM 和 Intel</option><option value="arm">仅 ARM (/opt/homebrew)</option><option value="intel">仅 Intel (/usr/local)</option></select> <select id="armbrewprim"><option value="arm">brew = ARM</option><option value="intel">brew = Intel</option></select> <button type="button" class="b" id="armbrewgo">设置 Homebrew</button></p>
+<p id="armbrewr" class="small"></p></div></div>
+</section>
+
+<section id="t-usb" hidden>
+<h1>USB 端口</h1>
+<div class="pane card"><p class="sh">定制你的 USB 端口映射</p>
+<p>macOS 每个 USB 控制器最多只用 15 个端口，而且不知道你的机箱实际接了哪些。1401 会在你插设备时监听各端口，然后为选中的端口写入映射。重启后再逐个测试，包括 USB-C 正反两个方向和睡眠唤醒。</p>
+<ol class="todo">
+<li><b>开始监听。</b> <button type="button" class="b go" id="uw">开始</button></li>
+<li><b>把你用的每个端口都插一遍设备，一次一个。</b>最好用 USB 3 U 盘；每个 USB-C 端口正反各插一次。1401 看到端口时它会变<span class="good">绿</span>。</li>
+<li><b>检查列表</b>，为每个端口选择插头类型，然后 <button type="button" class="b go" id="uwr">写入映射</button>（macOS 会要求输入密码；你的 OpenCore 配置会先备份）。</li>
+</ol>
+<p id="uerr" class="bad"></p></div>
+<div id="ports"></div>
+</section>
+
+<section id="t-crash" hidden>
+<h1>还有问题？</h1>
+<div class="pane card"><p class="sh">发送日志</p>
+<p>1401 会发送它的操作记录、驱动状态、崩溃报告、OpenCore 启动日志和数字化的设备映射，姓名、序列号和地址都会移除。你会得到一个报告 ID，可以贴在 NullMoth Discord 里求助。</p>
+<p class="row"><button type="button" class="b go" id="sl">向 NullMoth 发送日志</button> <button type="button" class="b" id="fl">录下闪烁画面</button></p>
+<p class="small">录下闪烁画面：屏幕闪烁时按下它。1401 会录制 20 秒驱动向显示器输出画面的过程，随日志一起发送。</p>
+<p id="slr"></p></div>
+<div class="pane card"><p class="sh">崩溃报告</p>
+<p>如果驱动导致本机崩溃，1401 会在下次登录时询问是否生成报告。它是桌面上的一个文本文件，包含你的硬件信息和故障原因，姓名、Mac 名称、序列号、地址和文件路径都已移除。<b>1401 绝不会自行发送它。</b></p>
+<p id="cr"></p>
+<p class="row"><button type="button" class="b" id="mk">生成报告</button> <button type="button" class="b" id="up">打开上传页面</button> <button type="button" class="b" id="cf">请作者喝杯咖啡</button> <button type="button" class="b" id="cr">致谢名单</button></p></div>
+<div class="pane card"><p class="sh">可选诊断</p>
+<p>此版本不支持采集。发送日志仍会收集硬件、内核和崩溃证据。安全设置没有任何更改。</p>
+<p class="row"><button type="button" class="b" id="od">检查可选诊断</button> <button type="button" class="b" id="dr">导入已保存的回执</button></p>
+<p class="small">检查可用性不会留下任何痕迹。已保存的回执需要单独的会话上传权限和一次独立的"发送日志"确认。</p>
+<p id="odr"></p><p id="drr"></p></div>
+<p class="legal">© 2026 NullMoth Systems。NullMoth 与飞蛾标志是 NullMoth Systems 的商标。本汉化版为社区修改，遇到问题请以英文原版为准。</p>
+</section>
+
+</main>
+</div>
+</div>
+<script src="app.js"></script>
+</body></html>
