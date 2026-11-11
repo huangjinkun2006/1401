@@ -42,12 +42,14 @@
 |---|---|
 | `Contents/Resources/index.html` | 全部界面文本译为简体中文；新增「使用说明」标签页（纯静态说明文档） |
 | `Contents/Resources/settings.html` | 驱动设置窗口全部文本译为简体中文 |
-| `Contents/Resources/app.js` | 全部状态/提示文本译为简体中文（日志协议关键字保留英文）；导航数组新增 `help` 一项 |
+| `Contents/Resources/app.js` | 全部状态/提示文本译为简体中文（日志协议关键字保留英文）；导航数组新增 `help` 一项；**停用官方应用自更新**，改由「查看汉化版更新」打开维护者 Release |
 | `Contents/Resources/efi_rules.json` | 27 条 EFI 检查规则的标题/说明/步骤译为简体中文 |
 | `Contents/Resources/settings_catalog.json` | 19 项驱动设置及分组名译为简体中文 |
 | `Contents/Info.plist` | `CFBundleName` / `CFBundleDisplayName` 改为「1401汉化」 |
 | `Contents/MacOS/1401`（仅打包 app） | 窗口标题 `Driver settings` → 「驱动设置」 |
 | 其余全部文件 | **未改动** |
+
+> **关于更新**：官方 app 更新包带 NullMoth 签名，程序会校验签名后才安装，因此无法让官方自动更新拉取第三方汉化包。本汉化版改为在「本机」页提供「查看汉化版更新」按钮，跳转到 https://github.com/huangjinkun2006/1401/releases/latest 手动下载；驱动更新不受影响，仍由官方渠道提供。
 
 ## 许可证
 

@@ -226,9 +226,11 @@ const NM = {
           : data.newer ? `${have}最新${kind}${esc(data.latest)} —— 可以更新。` : `${have}你的驱动已是最新（${esc(data.latest)}）。`;
         $("upddrv").hidden = !data.newer;
         $("upddrv").disabled = !data.newer;
-        if (data.app) $("updr").innerHTML += data.appNewer ? ` 应用 ${esc(data.appHave)} → ${esc(data.app)} 已就绪。` : ` 应用（${esc(data.appHave)}）已是最新。`;
-        $("updapp").hidden = !data.appNewer;
-        $("updapp").disabled = !data.appNewer;
+        // 汉化版：应用更新改由维护者的 Release 提供，绝不触发官方 app 自更新（会把界面覆盖回英文）
+        $("updapp").hidden = true;
+        $("updapp").disabled = true;
+        $("zhupd").hidden = false;
+        $("updr").innerHTML += ' <span class="good">应用更新请点「查看汉化版更新」，由本汉化版维护者发布。</span>';
       }
     }
     if (event === "appupd") {
@@ -278,7 +280,9 @@ $("upd").onclick = () => post({ act: "osupdate", cancel: false, pkg: S.pkg, efi:
 $("swu").onclick = () => post({ act: "swupdate" });
 $("updc").onclick = () => post({ act: "osupdate", cancel: true, efi: efi() });
 $("updchk").onclick = () => { $("updr").textContent = "检查中..."; post({ act: "checkUpdate" }); };
-$("updapp").onclick = () => { $("updapp").disabled = true; post({ act: "updateApp" }); };
+const ZH_RELEASES = "https://github.com/huangjinkun2006/1401/releases/latest";
+$("zhupd").onclick = () => post({ act: "open", url: ZH_RELEASES });
+$("updapp").onclick = () => post({ act: "open", url: ZH_RELEASES });
 $("upddrv").onclick = () => { S.driverUpdate = true; $("upddrv").disabled = true; $("updr").textContent = "正在下载最新驱动..."; post({ act: "updateDriver", efi: efi() }); };
 $("ocg").onclick = (e) => { e.preventDefault(); post({ act: "open", url: "https://dortania.github.io/OpenCore-Install-Guide/" }); };
 $("dry").onclick = () => post({ act: "run", mode: "dry", pkg: S.pkg, efi: efi() });
