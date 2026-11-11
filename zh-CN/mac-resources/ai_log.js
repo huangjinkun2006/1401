@@ -462,7 +462,19 @@ const AI_SAMPLE = [
   ai$("aiexample").onclick = () => { input.value = AI_SAMPLE; aiSetText(AI_SAMPLE); aiStat("已载入示例日志，点「本地智能解析」看效果。", "good"); };
   ai$("aifilebtn").onclick = () => ai$("aifile").click();
   ai$("aifile").onchange = (e) => { aiFiles(e.target.files); e.target.value = ""; };
-  ai$("ailogsfolder").onclick = () => { try { aiPost({ act: "logs" }); } catch (e) { aiStat("当前环境无法打开日志文件夹。", "warn"); } };
+  ai$("ailogsfolder").onclick = () => {
+    const p = "~/Library/Logs/NullMoth/Reports";
+    let ok = false;
+    try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(p); ok = true; } } catch (e) { /* 走兜底 */ }
+    if (!ok) {
+      const ta = document.createElement("textarea");
+      ta.value = p; ta.className = "ai-clip";
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+    }
+    aiStat(ok ? "已复制 " + p + "；在 Finder 按 ⌘⇧G 粘贴前往，也可直接在本页选日志文件。" : "日志目录：" + p + "（在 Finder 按 ⌘⇧G 前往）。", ok ? "good" : "warn");
+  };
   const drop = ai$("aidrop");
   drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("ai-over"); });
   drop.addEventListener("dragleave", () => drop.classList.remove("ai-over"));

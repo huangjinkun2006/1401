@@ -51,8 +51,18 @@
 | `Contents/Resources/efi_rules.json` | 27 条 EFI 检查规则的标题/说明/步骤译为简体中文 |
 | `Contents/Resources/settings_catalog.json` | 19 项驱动设置及分组名译为简体中文 |
 | `Contents/Info.plist` | 增加 `NSAppTransportSecurity` → `NSAllowsLocalNetworking`，允许直连本机 Ollama |
-| `Contents/MacOS/1401`（仅打包 app） | 窗口标题 `Driver settings` → 「驱动设置」 |
-| 其余全部文件 | **未改动** |
+| `Contents/MacOS/1401`（仅打包 app） | 窗口标题 `Driver settings` → 「驱动设置」；**同步内嵌 `BundleHashes` 清单中 6 个网页资源的 SHA-256**（见下方说明） |
+| `zh-CN/tools/sync_bundle_hashes.py`（新增） | 同步内嵌哈希清单的工具，自行替换资源文件后必须运行并重新签名 |
+| 其余全部文件 | **未改动**（驱动、kext、官方安装脚本、校验逻辑均保持原样） |
+
+> **关于 `(97)` 报错与完整性校验**：1401 在执行需要管理员权限的操作前，会把 `Contents/Resources` 里的文件复制到私有临时目录，用主程序内嵌的 SHA-256 清单跑 `shasum -a 256 --status -c -`。汉化改动了 `index.html`、`app.js`、`app.css`、`efi_rules.json`、`settings.html`、`settings_catalog.json`，若清单仍是官方原值，校验失败并 `exit 97`，`osascript` 就会报「该命令退出时状态为非零。(97)」，导致发送日志 / 安装驱动 / 挂载 EFI 等全部失效。发布版已同步这 6 项哈希，校验照常生效（其余 26 项官方文件仍是原值）。若你按 `mac-resources/` 自行汉化，请在改完资源后执行：
+>
+> ```bash
+> python3 zh-CN/tools/sync_bundle_hashes.py /path/to/1401汉化.app /path/to/1401.app
+> codesign --force --deep --sign - /path/to/1401汉化.app
+> ```
+>
+> 该脚本按清单位置等长替换、可重复运行，不修改校验逻辑。官方原版不受影响。
 
 > **关于更新**：官方 app 更新包带 NullMoth 签名，程序会校验签名后才安装，因此无法让官方自动更新拉取第三方汉化包。本汉化版改为在「本机」页提供「查看汉化版更新」按钮，跳转到 https://github.com/huangjinkun2006/1401/releases/latest 手动下载；驱动更新不受影响，仍由官方渠道提供。
 
