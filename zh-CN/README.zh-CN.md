@@ -12,7 +12,7 @@
 
 - 五个标签页：本机（Home）/ 问题检查（Issues）/ 工具（Tools）/ USB 端口（USB Ports）/ 发送报告（Send Report）
 - 安装四步流程与全部按钮、状态提示、错误说明
-- 驱动设置窗口（`settings.html`）：GPU 信息、HDR10、帧率限制、低延迟模式等 19 项设置及分组名
+- 驱动设置窗口（`settings.html` + `settings_catalog.json`）：GPU 信息、19 项设置的标题与说明、分组名、下拉选项（默认 / 开启 / 关闭 / RGB / YCbCr 等）、窗口标题
 - 「检查我的 EFI」全部 27 条检查规则：标题、说明、修复步骤（`efi_rules.json`）
 - 动态提示文本：硬件检测表（显存窗口/可变 BAR/ASPM）、诊断结论、下载进度、USB 端口映射等
 - v2.9 新增内容：键盘背光、HDMI 音量、亮度控制等实验性功能说明
@@ -21,7 +21,7 @@
 
 ### 方式一：直接下载打包好的 app（推荐）
 
-到本仓库的 **Releases** 页面下载 `1401-汉化版-2.9.zip`，解压后把 `1401汉化.app` 拖进「应用程序」文件夹即可打开。
+到本仓库的 **Releases** 页面下载 `1401-zh-CN-2.9.zip`，解压后把 `1401汉化.app` 拖进「应用程序」文件夹即可打开。
 
 > 首次打开如果提示"无法验证开发者"，右键点 app → 打开，或到 系统设置 → 隐私与安全性 里点"仍要打开"。app 是 adhoc 自签名（与官方分发方式相同），驱动本体由 app 运行时从官方源下载并校验哈希，汉化不触碰任何驱动文件。
 
@@ -31,6 +31,8 @@
 2. 把本目录 `mac-resources/` 下的 `index.html`、`settings.html`、`app.js`、`efi_rules.json`、`settings_catalog.json` 替换掉 `1401.app/Contents/Resources/` 下的同名文件
 3. （可选）用 `Info.plist` 替换 `1401.app/Contents/Info.plist`，让 Dock 显示「1401汉化」
 4. 重新签名：`codesign -f -s - --deep 1401.app`
+
+> 注：设置窗口的**标题栏**「驱动设置」是在打包 app 的可执行文件里改的，手动替换资源文件无法改到它（会仍显示英文 `Driver settings`，不影响功能）。需要完整汉化请直接下载 Release 里打包好的 app。
 
 ## 与官方版本的差异清单
 
@@ -42,6 +44,7 @@
 | `Contents/Resources/efi_rules.json` | 27 条 EFI 检查规则的标题/说明/步骤译为简体中文 |
 | `Contents/Resources/settings_catalog.json` | 19 项驱动设置及分组名译为简体中文 |
 | `Contents/Info.plist` | `CFBundleName` / `CFBundleDisplayName` 改为「1401汉化」 |
+| `Contents/MacOS/1401`（仅打包 app） | 窗口标题 `Driver settings` → 「驱动设置」 |
 | 其余全部文件 | **未改动** |
 
 ## 许可证

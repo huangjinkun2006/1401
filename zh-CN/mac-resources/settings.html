@@ -62,8 +62,9 @@ function row(s,safe){
       if(parts.length===1&&defOn.checked)return defSel.value;
       return parts.join(',')};
   }else if(s.kind==='bool'||s.kind==='enum'){
+    const OPT={default:'默认',on:'开启',off:'关闭',rgb:'RGB',ycbcr422:'YCbCr 4:2:2',ycbcr444:'YCbCr 4:4:4',full:'全范围（0–255）',limited:'受限范围（16–235）','6':'6 位','8':'8 位','10':'10 位','12':'12 位'};
     const sel=document.createElement('select');const names=s.kind==='enum'?Object.keys(s.valueMap):[];const opts=['default'].concat(s.kind==='bool'?['on','off']:names);
-    opts.forEach(o=>{const e=document.createElement('option');e.value=o;e.textContent=o;sel.append(e)});
+    opts.forEach(o=>{const e=document.createElement('option');e.value=o;e.textContent=OPT[o]||o;sel.append(e)});
     const cv=s.current;sel.value=cv==='1'&&s.kind==='bool'?'on':cv==='0'&&s.kind==='bool'?'off':(s.kind==='enum'?(names.find(k=>s.valueMap[k]===cv)||'default'):'default');
     ctl.append(sel);get=()=>sel.value;
   }else{
@@ -76,6 +77,7 @@ function row(s,safe){
   c.append($('div','h',s.help+(s.where==='bootarg'?'（需重启）':'')));
   if(s.id==='surround'&&displays.length)c.append($('div','h','当前已连接的显示器：'+displays.join('、')+'。请勾选组成同一个屏幕的帧缓冲编号。'));
   c.append($('div','msg'));return c}
-function result(r){const c=document.getElementById('s-'+r.id);if(!c)return;const m=c.querySelector('.msg');m.className='msg '+(r.ok?'ok':'bad');m.textContent=r.message}
+const MSG={"Cancelled. Nothing was changed.": "已取消，未做任何改动。", "Nothing was changed.": "未做任何改动。"};
+function result(r){const c=document.getElementById('s-'+r.id);if(!c)return;const m=c.querySelector('.msg');m.className='msg '+(r.ok?'ok':'bad');m.textContent=MSG[r.message]||r.message}
 post({act:'load'});
 </script></body></html>
