@@ -22,6 +22,7 @@
 <button type="button" class="nav tab" data-t="tools" data-title="工具"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18v12H3z"/><path d="M3 7l3-3h12l3 3M10 12h4"/></svg>工具 · 挂载 EFI</button>
 <button type="button" class="nav tab" data-t="usb" data-title="USB 端口"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v14M8 7l4-4 4 4M7 13h10M9 21h6v-4H9z"/></svg>USB 端口</button>
 <button type="button" class="nav tab" data-t="crash" data-title="发送报告"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H8l-4 4z"/></svg>发送报告</button>
+<button type="button" class="nav tab" data-t="help" data-title="使用说明"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11a2 2 0 0 1 2 2v15H7a2 2 0 0 1-2-2z"/><path d="M5 17a2 2 0 0 1 2-2h11M9 7h6M9 11h6"/></svg>使用说明</button>
 <div class="sidefoot">驱动 <span id="ver"></span><br><a href="#" id="src">源代码</a> · <a href="#" id="ocg">OpenCore 指南</a></div>
 </nav>
 
@@ -190,6 +191,72 @@
 <p class="small">检查可用性不会启动任何采集。已保存的回执需要其独立的会话上传权限和一次单独的「发送日志」确认。</p>
 <p id="odr"></p><p id="drr"></p></div>
 <p class="legal">© 2026 NullMoth Systems. NullMoth 和飞蛾标志是 NullMoth Systems 的商标。</p>
+</section>
+
+
+<section id="t-help" hidden>
+<h1>使用说明</h1>
+<p class="lede">1401 中文汉化版 · 对应官方 v2.9。本页可随时回来查看；本包只翻译界面文字，功能与官方完全一致。</p>
+
+<div class="pane card"><p class="sh">一、这是什么</p>
+<p>1401 是 NullMoth 官方提供的工具，用来在 OpenCore 黑苹果上安装、更新和移除 NVIDIA（NullMoth）驱动，适用 macOS 15.5 及以上（含 macOS 26 Tahoe）。</p>
+<p class="small">本包不含驱动本体：驱动由 app 运行时从官方源下载并对照官方 SHA-256 校验。汉化范围包括主界面五个页面、驱动设置窗口 19 项设置、27 条 EFI 检查规则、窗口标题与全部提示；不触碰驱动、kext、EFI 内容。</p>
+<p class="small">许可证 PolyForm Noncommercial 1.0.0，仅供非商业用途免费使用，与 NullMoth 官方无隶属关系。</p></div>
+
+<div class="pane card"><p class="sh">二、第一次打开</p>
+<p class="todo"><ol>
+<li>把 1401汉化.app 拖进「应用程序」文件夹。</li>
+<li>首次打开提示「无法验证开发者」时，右键点 app → 打开；或到 系统设置 → 隐私与安全性 点「仍要打开」。</li>
+<li><b>动手之前先备份 EFI</b>：到「工具 · 挂载 EFI」挂载引导分区，把整个 EFI 文件夹复制到 U 盘。</li>
+<li>保持引导本机启动的 U 盘或硬盘（OpenCore 所在盘）始终插在电脑上，1401 要改的就是那上面的配置。</li>
+</ol></p></div>
+
+<div class="pane card"><p class="sh">三、主界面五个页面</p>
+<table class="pc"><tbody>
+<tr><th>本机</th><td>硬件检测、驱动安装四步、更新检查、实验性功能</td></tr>
+<tr><th>问题检查</th><td>按 27 条规则检查 EFI / config.plist，逐条给出修复步骤</td></tr>
+<tr><th>工具 · 挂载 EFI</th><td>挂载 EFI 分区、选择 config.plist、打开日志文件夹</td></tr>
+<tr><th>USB 端口</th><td>查看并定制 USB 端口映射</td></tr>
+<tr><th>发送报告</th><td>收集日志发给官方（自愿，不点不发）</td></tr>
+</tbody></table></div>
+
+<div class="pane card"><p class="sh">四、驱动安装四步（「本机」页）</p>
+<p class="todo"><ol>
+<li><b>获取驱动</b> —— 下载官方驱动包并校验哈希。</li>
+<li><b>先看清楚再动手</b> —— 列出每一处将改动的内容，此步不写入任何东西。</li>
+<li><b>安装</b> —— 自动备份 OpenCore 配置，只执行清单内改动，并在启动菜单加入 1401: Remove NVIDIA driver。</li>
+<li><b>重启</b> —— 若系统提示扩展被阻止，到 系统设置 → 隐私与安全性 点「允许」，再重启一次。</li>
+</ol></p></div>
+
+<div class="pane card"><p class="sh">五、驱动设置窗口</p>
+<p>共 19 项，分「显示」「性能」两组。</p>
+<p class="small"><b>显示</b>：HDR10、10 位色深、可变刷新率、输出色深 / 颜色格式 / 动态范围、数字振动、动态超级分辨率、HiDPI 模式、旋转缩放、环视多屏、笔记本面板亮度。</p>
+<p class="small"><b>性能</b>：帧率上限、低延迟模式、着色器缓存上限、多张 N 卡、为应用指定显卡、内置按应用配置、系统内存保留。</p>
+<p class="small">每项改动都会先展示将要写入的内容并请求确认。下拉选「默认」即交给驱动自行决定；<b>显示类设置属于引导参数，重启后生效</b>。不确定时保持「默认」最安全。</p></div>
+
+<div class="pane card"><p class="sh">六、装好驱动后的常见情况</p>
+<ul>
+<li>系统信息里显卡名称 / 显存由驱动注入，名称不标准不代表驱动没工作。</li>
+<li>Optimus 双显卡笔记本：内屏通常由核显驱动，外接 USB-C / HDMI 才直连 N 卡，属正常形态。</li>
+<li>建议保留 <b>-v</b> 详细启动模式，方便看启动报错。</li>
+<li>Lilu / AMFIPass 相关报错：先确认 kext 版本配套、SIP 与 SecureBootModel 设置。</li>
+<li>不要随意屏蔽核显或其他显卡，除非明确知道后果；下载驱动需要联网。</li>
+</ul></div>
+
+<div class="pane card"><p class="sh">七、汉化版专属注意事项（重要）</p>
+<p><b>不要在汉化版里点自动更新</b>：官方更新会覆盖整个 app，界面会变回英文（功能不受影响）。想升级请下载对应版本的汉化包。</p>
+<p class="small">若按仓库资源文件自行汉化，设置窗口标题栏仍是英文 Driver settings（标题写在可执行文件里），不影响使用。</p></div>
+
+<div class="pane card"><p class="sh">八、出问题怎么办</p>
+<p class="todo"><ol>
+<li>先看「问题检查」页给出的规则说明与修复步骤。</li>
+<li>重启时保留 -v，观察启动日志定位失败点。</li>
+<li>用「工具 · 挂载 EFI」把之前备份的 EFI 还原回去。</li>
+<li>启动菜单里的 1401: Remove NVIDIA driver 可一键移除驱动。</li>
+</ol></p></div>
+
+<p class="small">修改 EFI、安装第三方内核扩展有一定风险，务必先备份 EFI，一切后果自行承担。本汉化包为社区贡献，与 NullMoth 官方无隶属关系。</p>
+<p class="legal">© 2026 NullMoth Systems. NullMoth 和飞蛾标志是 NullMoth Systems 的商标。Required Notice: Copyright NullMoth Systems.</p>
 </section>
 
 </main>

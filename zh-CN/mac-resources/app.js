@@ -342,7 +342,7 @@ post({ act: "scan" });
 
 document.querySelectorAll(".tab").forEach((b) => (b.onclick = () => {
   document.querySelectorAll(".tab").forEach((x) => x.classList.toggle("on", x === b));
-  ["drv", "efi", "tools", "usb", "crash"].forEach((t) => ($("t-" + t).hidden = t !== b.dataset.t));
+  ["drv", "efi", "tools", "usb", "crash", "help"].forEach((t) => ($("t-" + t).hidden = t !== b.dataset.t));
   $("ttl").textContent = "1401 — " + b.dataset.title;
   if (b.dataset.t !== "usb") post({ act: "usbStop" });
 }));

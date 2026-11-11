@@ -17,6 +17,8 @@
 - 动态提示文本：硬件检测表（显存窗口/可变 BAR/ASPM）、诊断结论、下载进度、USB 端口映射等
 - v2.9 新增内容：键盘背光、HDMI 音量、亮度控制等实验性功能说明
 
+**完整中文说明书**：见 [使用说明.md](使用说明.md)（安装前备份 EFI、五个页面功能、驱动设置 19 项说明、常见问题、汉化版注意事项等）。打包好的 app 里也内置了「使用说明」标签页，打开即可查看；zip 内另附一份同名 Markdown。
+
 ## 使用方法（两种任选）
 
 ### 方式一：直接下载打包好的 app（推荐）
@@ -38,9 +40,9 @@
 
 | 文件 | 改动 |
 |---|---|
-| `Contents/Resources/index.html` | 全部界面文本译为简体中文 |
+| `Contents/Resources/index.html` | 全部界面文本译为简体中文；新增「使用说明」标签页（纯静态说明文档） |
 | `Contents/Resources/settings.html` | 驱动设置窗口全部文本译为简体中文 |
-| `Contents/Resources/app.js` | 全部状态/提示文本译为简体中文（日志协议关键字保留英文） |
+| `Contents/Resources/app.js` | 全部状态/提示文本译为简体中文（日志协议关键字保留英文）；导航数组新增 `help` 一项 |
 | `Contents/Resources/efi_rules.json` | 27 条 EFI 检查规则的标题/说明/步骤译为简体中文 |
 | `Contents/Resources/settings_catalog.json` | 19 项驱动设置及分组名译为简体中文 |
 | `Contents/Info.plist` | `CFBundleName` / `CFBundleDisplayName` 改为「1401汉化」 |
