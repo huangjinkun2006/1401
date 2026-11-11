@@ -100,6 +100,7 @@
 <div class="pane card" id="exppane"><p class="sh">实验性驱动与功能</p>
 <p class="row"><button id="expall" type="button">全选</button> <button id="expnone" type="button">全不选</button></p>
 <p>均为离线编写与测试，尚未在所有机型上验证。每一项在勾选并点击「应用」前都保持<b>关闭</b>，且都需要<b>重启</b>。取消勾选再点「应用」即可完全还原；你自己手动设置的参数永远不会被移除。</p>
+<p class="small">每一项具体做什么、开启后会有什么影响、哪些不建议开，见左侧栏「使用说明」→ <b>六、实验性驱动与功能</b>。</p>
 <p class="row"><label><input type="checkbox" class="expitem" id="exp-kbl" data-id="kbl"> <b>键盘背光</b></label> 笔记本键盘背光按键与亮度调节（NMKbdBacklight kext）。由 OpenCore 加载的驱动：1401 2.9 构建的 EFI 已自带且默认关闭，「应用」会将其开启（旧 EFI 会先从已装的 NVIDIA 驱动中复制进来）。需要 VirtualSMC。离线构建与校验；尚未在笔记本上实测。</p>
 <p class="row"><label><input type="checkbox" class="expitem" id="exp-hda" data-id="hda"> <b>NVIDIA 显示音频（含音量控制，macOS 15）</b></label> 来自 NVIDIA 卡的 HDMI / DisplayPort 音频，经 Apple HD Audio 驱动输出，音量滑块和静音可用（NMHDA 驱动）。由 OpenCore 加载，管理方式同键盘背光。仅限 macOS 15：macOS 26 使用 NMXAudio。</p>
 <p class="row"><label><input type="checkbox" class="expitem" id="exp-kblhid" data-id="kblhid"> <b>键盘背光（HID 通道）</b></label> 走部分笔记本使用的 HID 通道，功能相同。需先开启上一项。</p>
@@ -233,8 +234,46 @@
 <p class="small"><b>显示</b>：HDR10、10 位色深、可变刷新率、输出色深 / 颜色格式 / 动态范围、数字振动、动态超级分辨率、HiDPI 模式、旋转缩放、环视多屏、笔记本面板亮度。</p>
 <p class="small"><b>性能</b>：帧率上限、低延迟模式、着色器缓存上限、多张 N 卡、为应用指定显卡、内置按应用配置、系统内存保留。</p>
 <p class="small">每项改动都会先展示将要写入的内容并请求确认。下拉选「默认」即交给驱动自行决定；<b>显示类设置属于引导参数，重启后生效</b>。不确定时保持「默认」最安全。</p></div>
+<div class="pane card"><p class="sh">六、实验性驱动与功能（逐项说明）</p>
+<p>位置：「本机」页往下拉，共 <b>14 个复选框</b>，上方是「全选 / 全不选」，底部是「应用」。官方明确说明：这些功能<b>均为离线编写与测试，尚未在所有机型上验证</b>，因此默认全部关闭。开启它们等于主动替官方做实机测试。</p>
+<p class="todo"><ol>
+<li><b>先备份 EFI</b>（见第二节），并确保能进入 OpenCore 启动菜单。</li>
+<li><b>一次只勾一项</b>，然后点「应用」（需要管理员密码）。「全选 / 全不选」<b>只改变勾选框</b>，不点「应用」不会写入任何东西。</li>
+<li><b>重启才生效</b>。重启后确认内屏、外接屏、睡眠唤醒、常用软件都正常，再考虑开下一项。</li>
+<li>有异常就把勾取消、再点一次「应用」并重启，即可<b>完全还原</b>；你自己手动设置的参数永远不会被移除。</li>
+</ol></p>
+<p><b>点「应用」后改了什么</b>：把选中的标志写入 <code>/Library/NullMoth/experimental</code>（例如 <code>ON=igpuproxy</code>），驱动启动时读取；键盘背光、显示音频这类还会让 OpenCore 注入对应 kext，个别项会往 boot-args 追加参数（「内屏走核显」对应 <code>nvfbigpu=1</code>）。想确认当前开了哪些，直接查看这个文件即可。</p>
+<p class="small"><b>风险</b>：这些开关直接改动驱动的电源管理、显示路径与 Metal 功能实现，最坏情况是黑屏、屏幕冻结、卡死或驱动加载失败。所以务必保留 <b>-v</b> 启动参数，别一次全开——多项叠加出问题就无法定位是谁导致的。<b>不建议点「全选」。</b></p>
+</div>
 
-<div class="pane card"><p class="sh">六、装好驱动后的常见情况</p>
+<div class="pane card"><p class="sh">六 · A　笔记本与显示相关（6 项）</p>
+<table class="pc"><tbody>
+<tr><th>内屏走核显<br>igpuproxy</th><td>混合输出笔记本的内屏物理接在核显 / 集显上，开启后驱动用「代理显示头」把内屏呈现出来，内屏才有画面。<br><b>建议</b>：内屏接核显的双显卡笔记本（Optimus 机型）<b>应保持开启</b>；台式机、内屏直连 N 卡的机器不用开。这项通常还会追加 <code>nvfbigpu=1</code> 引导参数，因此属于会动 EFI 的项目。</td></tr>
+<tr><th>键盘背光<br>kbl</th><td>让亮度按键调节笔记本键盘背光（NMKbdBacklight kext）。点「应用」会让 OpenCore 启用这个原本默认关闭的 kext，需要 VirtualSMC；2.9 构建的 EFI 已自带，旧 EFI 会从已装驱动里复制。<br><b>建议</b>：<b>可以试但别抱期待</b>——官方注明「尚未在笔记本上实测」，不同品牌的背光由 EC / 厂商固件控制，很可能无效或让亮度键行为异常。要开就单独开这一项验证。</td></tr>
+<tr><th>键盘背光（HID 通道）<br>kblhid</th><td>部分笔记本的背光走 HID 通道，作用与上一项相同，<b>必须先开启「键盘背光」</b>才有效。<br><b>建议</b>：只在「键盘背光」开了却没反应时再试；单开它无效。</td></tr>
+<tr><th>NVIDIA 显示音频<br>hda</th><td>把 N 卡的 HDMI / DisplayPort 音频交给 Apple HD Audio 驱动输出，音量滑块与静音可用（NMHDA kext，由 OpenCore 加载）。<b>仅限 macOS 15</b>；macOS 26 改用 NMXAudio。<br><b>建议</b>：只有在 macOS 15 且确实要把声音从外接显示器 / 功放输出时才有意义；macOS 26 用户<b>不用开</b>，没接 HDMI/DP 也不用开。</td></tr>
+<tr><th>笔记本 GPU 功耗上限<br>tgp</th><td>接电源时允许 N 卡跑满平台完整功耗上限（Dynamic Boost），用电池时自动放开限制。<br><b>建议</b>：接电源玩游戏 / 跑渲染<b>可以试</b>，换来更高帧率，代价是功耗与发热上升、风扇更响；只在意续航就别开。</td></tr>
+<tr><th>混合输出笔记本：<br>最新 Intel 显卡<br>hybrid20</th><td>让混合面板驱动在 Lunar Lake / Panther Lake 这些新 Intel 核显上正常唤醒；仅在混合笔记本模式开启时有关，代码依据 Linux 显示驱动编写，官方注明尚未在该硬件上跑过。<br><b>建议</b>：<b>只有这些新 Intel 平台才适用</b>；AMD 平台、老 Intel 核显、台式机开了也没用，别开。</td></tr>
+</tbody></table></div>
+
+<div class="pane card"><p class="sh">六 · B　省电与稳定性（2 项 · 风险最高）</p>
+<table class="pc"><tbody>
+<tr><th>空闲 GPU 深度休眠<br>rtd3</th><td>N 卡空闲时进入最深的省电状态（runtime D3）。官方说功耗收益与唤醒表现还要先在工作室机器上测量才敢推荐。<br><b>建议</b>：<b>不建议开</b>。省下的电有限，但可能出现睡下去唤不醒、唤醒黑屏、驱动掉卡；排查起来也难。</td></tr>
+<tr><th>空闲链路省电<br>aspm</th><td>空闲时让 N 卡与主板的 PCIe 链路进入 ASPM L1 休眠，两端都支持才生效。驱动默认保持固件设定的链路状态，因为在未针对此设计的主板上，链路休眠<b>可能导致卡死或掉卡</b>。<br><b>建议</b>：<b>不建议开</b>。如果开了以后空闲时屏幕冻结，第一件事就是把它关掉。</td></tr>
+</tbody></table></div>
+
+<div class="pane card"><p class="sh">六 · C　图形与性能（6 项）</p>
+<table class="pc"><tbody>
+<tr><th>硬件光线查询<br>hwrt</th><td>用 NullMoth 自建的加速结构，在 N 卡的 RT 核心上执行光线查询，让支持 Metal 光追的应用获得硬件加速。<br><b>建议</b>：有 RT 核心的卡（Turing 及以后）且确实要跑光追应用时<b>可以试</b>；属于实验实现，可能画面错误或崩溃，普通桌面使用没必要开。</td></tr>
+<tr><th>光线追踪中的曲线图元<br>curves</th><td>让光线查询支持曲线图元，但走的是<b>软件遍历、速度较慢</b>，需配合上一项。<br><b>建议</b>：除非某个应用明确报「缺曲线图元」，否则<b>不用开</b>，开了只会更慢。</td></tr>
+<tr><th>Metal 瓦片着色<br>tile</th><td>为使用瓦片着色（tile shader）特性的应用启用该能力。<br><b>建议</b>：只对用到该特性的少数应用有效，桌面与多数游戏无感；不确定就<b>保持关闭</b>。</td></tr>
+<tr><th>GPU 编码的命令列表<br>icb</th><td>启用由 GPU 写入的间接命令缓冲（indirect command buffer），供特定渲染 / 计算应用使用。<br><b>建议</b>：同上，收益只出现在特定应用；实验性实现，遇到渲染异常先关它。</td></tr>
+<tr><th>AMD / Intel 视频解码<br>xvt</th><td>在 AMD 与 Intel GPU 上启用 AV1、VP9 硬件解码。<br><b>建议</b>：核显本身要支持对应格式才有意义（老核显没有 AV1 硬解）；播放 4K / AV1 视频遇到问题可以试，否则保持关闭。</td></tr>
+<tr><th>游戏 GPU 优先级<br>gameprio</th><td>提高游戏在 GPU 调度中的优先级，让游戏更容易抢到显卡资源。<br><b>建议</b>：相对温和、<b>可以试</b>；效果依负载而定，后台还在跑渲染 / 转码时更明显。</td></tr>
+</tbody></table></div>
+
+
+<div class="pane card"><p class="sh">七、装好驱动后的常见情况</p>
 <ul>
 <li>系统信息里显卡名称 / 显存由驱动注入，名称不标准不代表驱动没工作。</li>
 <li>Optimus 双显卡笔记本：内屏通常由核显驱动，外接 USB-C / HDMI 才直连 N 卡，属正常形态。</li>
@@ -243,11 +282,11 @@
 <li>不要随意屏蔽核显或其他显卡，除非明确知道后果；下载驱动需要联网。</li>
 </ul></div>
 
-<div class="pane card"><p class="sh">七、汉化版专属注意事项（重要）</p>
+<div class="pane card"><p class="sh">八、汉化版专属注意事项（重要）</p>
 <p><b>不要在汉化版里点自动更新</b>：官方更新会覆盖整个 app，界面会变回英文（功能不受影响）。想升级请下载对应版本的汉化包。</p>
 <p class="small">若按仓库资源文件自行汉化，设置窗口标题栏仍是英文 Driver settings（标题写在可执行文件里），不影响使用。</p></div>
 
-<div class="pane card"><p class="sh">八、出问题怎么办</p>
+<div class="pane card"><p class="sh">九、出问题怎么办</p>
 <p class="todo"><ol>
 <li>先看「问题检查」页给出的规则说明与修复步骤。</li>
 <li>重启时保留 -v，观察启动日志定位失败点。</li>
