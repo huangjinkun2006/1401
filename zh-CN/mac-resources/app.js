@@ -4,6 +4,69 @@ const post = (m) => window.webkit.messageHandlers.nm.postMessage(m);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const S = { mac: null, pkg: "", previewed: false, installed: false, driverUpdate: false };
 
+// 原生程序（二进制）动态写入的英文结构化文案 → 中文。
+// 仅作用于「问题检查」结果容器，绝不触碰用户粘贴的内容。
+// 保留英文：OpenCore 配置键名（MmioWhitelist/Block/Patch/Delete 等）、启动错误码（EB.MM.AKM/STOP 0x16 等）。
+const NM_EN_ZH = [
+  // —— 问题检查（EFI Check）专用 ——
+  [" entries still enabled: ", " 仍有启用的条目："],
+  [" has no enabled ", " 没有启用的 "],
+  [" entries to correct: ", " 需要修正的条目："],
+  ["Detected table DMAR", "检测到 DMAR 表"],
+  ["The EFI partition could not be found.", "找不到 EFI 分区。"],
+  ["The OpenCore config could not be read.", "无法读取 OpenCore 配置。"],
+  ["Reading the EFI did not finish.", "读取 EFI 未完成。"],
+  ["NOTE app read: no OpenCore config on a mounted removable volume", "提示：已挂载的可移动卷上没有 OpenCore 配置"],
+  ["Choose the OpenCore config.plist this Mac starts from", "选择本机启动所用的 OpenCore config.plist"],
+  ["note: -wegnoigpu is set, so the Intel GPU is switched off and the test driver cannot see it", "注意：-wegnoigpu 已设置，Intel 核显已关闭，测试驱动无法识别它"],
+  // —— 通用操作结果 ——
+  ["It takes effect after you restart.", "重启后生效。"],
+  ["It takes effect after: ", "生效后："],
+  ["Changed. It takes effect after: ", "已更改。生效后："],
+  ["Cancelled. Nothing was added.", "已取消。未添加任何内容。"],
+  ["Cancelled. Nothing was changed.", "已取消。未更改任何内容。"],
+  ["Cancelled at the password prompt.", "在密码提示处已取消。"],
+  ["Cancelled. What was already set up stays; Set up Homebrew again continues from there.", "已取消。已设置的部分保留；重新设置 Homebrew 会从中继续。"],
+  ["Driver update cancelled. Nothing was changed.", "驱动更新已取消。未更改任何内容。"],
+  ["Homebrew was not set up: the password prompt was cancelled.", "Homebrew 未设置：密码提示已取消。"],
+  ["Could not open the report folder root.", "无法打开报告文件夹根目录。"],
+  ["No crash that names the driver was found.", "未找到指向该驱动的崩溃。"],
+  ["No ports picked.", "未选择任何端口。"],
+  ["Collecting logs. This takes a few minutes; 1401 keeps working.", "正在收集日志，需要几分钟；1401 会继续工作。"],
+  ["NVIDIA Metal plugin offered: no accelerator", "提供的 NVIDIA Metal 插件：无加速器"],
+  ["NVIDIA Metal plugin offered: ", "提供的 NVIDIA Metal 插件："],
+  ["On: the daemon holds the GPU at its maximum boost.", "开启：守护进程将 GPU 锁定在最大加速状态。"],
+  ["Download a driver, or choose a driver file from your Mac.", "下载驱动，或从本机选择驱动文件。"],
+  ["Choose a Driver File", "选择驱动文件"],
+  ["Could not ask macOS for the Command Line Tools: ", "无法向 macOS 请求命令行工具："],
+  ["Could not start the password prompt: ", "无法启动密码提示："],
+];
+
+function nmTranslateNode(node) {
+  if (node.nodeType === 3) { // 文本节点
+    let t = node.nodeValue;
+    for (const [en, zh] of NM_EN_ZH) { if (t.indexOf(en) !== -1) t = t.split(en).join(zh); }
+    if (t !== node.nodeValue) node.nodeValue = t;
+  } else if (node.nodeType === 1 && node.tagName !== "SCRIPT" && node.tagName !== "STYLE") {
+    for (const c of Array.from(node.childNodes)) nmTranslateNode(c);
+  }
+}
+
+(function nmWatch() {
+  const targets = ["efiout", "efichkr"].map((id) => $(id)).filter(Boolean);
+  if (!targets.length) return;
+  let busy = false;
+  const obs = new MutationObserver((muts) => {
+    if (busy) return;
+    busy = true;
+    obs.disconnect();
+    for (const m of muts) nmTranslateNode(m.target);
+    for (const el of targets) obs.observe(el, { childList: true, subtree: true, characterData: true });
+    busy = false;
+  });
+  for (const el of targets) { nmTranslateNode(el); obs.observe(el, { childList: true, subtree: true, characterData: true }); }
+})();
+
 function row(k, v) { return `<tr><th>${esc(k)}</th><td>${v}</td></tr>`; }
 function step(n, state) { const li = $("s" + n); li.classList.toggle("done", state === "done"); li.classList.toggle("now", state === "now"); }
 
