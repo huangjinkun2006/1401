@@ -1,6 +1,6 @@
 # 1401 中文汉化版（1401 Chinese Localization）
 
-> 基于 [NullMoth 官方 1401](https://github.com/nullmoth/1401) v2.8.1 的非官方中文界面汉化包。
+> 基于 [NullMoth 官方 1401](https://github.com/nullmoth/1401) v2.9 的非官方中文界面汉化包。
 >
 > Required Notice: Copyright NullMoth Systems
 
@@ -8,27 +8,28 @@
 
 官方 1401 安装器目前只有英文界面。这个汉化包把 macOS 版应用的全部界面文字翻译成了简体中文，功能逻辑与官方原版**完全一致**，没有任何行为改动。
 
-汉化内容覆盖：
+汉化内容覆盖（v2.9 全量）：
 
 - 五个标签页：本机（Home）/ 问题检查（Issues）/ 工具（Tools）/ USB 端口（USB Ports）/ 发送报告（Send Report）
 - 安装四步流程与全部按钮、状态提示、错误说明
-- Tahoe 准备、更新检查提示等
-
-未汉化部分：「检查我的 EFI」功能里每条规则的详细说明来自数据文件 `efi_rules.json`（保持原文，避免误译影响判断准确性）。
+- 驱动设置窗口（`settings.html`）：GPU 信息、HDR10、帧率限制、低延迟模式等 19 项设置及分组名
+- 「检查我的 EFI」全部 27 条检查规则：标题、说明、修复步骤（`efi_rules.json`）
+- 动态提示文本：硬件检测表（显存窗口/可变 BAR/ASPM）、诊断结论、下载进度、USB 端口映射等
+- v2.9 新增内容：键盘背光、HDMI 音量、亮度控制等实验性功能说明
 
 ## 使用方法（两种任选）
 
 ### 方式一：直接下载打包好的 app（推荐）
 
-到本仓库的 **Releases** 页面下载 `1401-汉化版-2.8.1.zip`，解压后把 `1401.app` 拖进「应用程序」文件夹即可打开。
+到本仓库的 **Releases** 页面下载 `1401-汉化版-2.9.zip`，解压后把 `1401汉化.app` 拖进「应用程序」文件夹即可打开。
 
 > 首次打开如果提示"无法验证开发者"，右键点 app → 打开，或到 系统设置 → 隐私与安全性 里点"仍要打开"。app 是 adhoc 自签名（与官方分发方式相同），驱动本体由 app 运行时从官方源下载并校验哈希，汉化不触碰任何驱动文件。
 
 ### 方式二：自己动手汉化官方原版
 
-1. 从官方渠道获取 1401 Mac 版（官网或 GitHub Release，注意核对 SHA-256）
-2. 把本目录的 `index.html` 和 `app.js` 替换掉 `1401.app/Contents/Resources/` 下的同名文件
-3. （可选）把 `Info.plist` 中的 `CFBundleName` 改为你喜欢的名字，让 Dock 显示更直观
+1. 从官方渠道获取 1401 Mac 版 2.9（官网或 GitHub Release，注意核对 SHA-256）
+2. 把本目录 `mac-resources/` 下的 `index.html`、`settings.html`、`app.js`、`efi_rules.json`、`settings_catalog.json` 替换掉 `1401.app/Contents/Resources/` 下的同名文件
+3. （可选）用 `Info.plist` 替换 `1401.app/Contents/Info.plist`，让 Dock 显示「1401汉化」
 4. 重新签名：`codesign -f -s - --deep 1401.app`
 
 ## 与官方版本的差异清单
@@ -36,9 +37,11 @@
 | 文件 | 改动 |
 |---|---|
 | `Contents/Resources/index.html` | 全部界面文本译为简体中文 |
-| `Contents/Resources/app.js` | 全部状态/提示文本译为简体中文 |
+| `Contents/Resources/settings.html` | 驱动设置窗口全部文本译为简体中文 |
+| `Contents/Resources/app.js` | 全部状态/提示文本译为简体中文（日志协议关键字保留英文） |
+| `Contents/Resources/efi_rules.json` | 27 条 EFI 检查规则的标题/说明/步骤译为简体中文 |
+| `Contents/Resources/settings_catalog.json` | 19 项驱动设置及分组名译为简体中文 |
 | `Contents/Info.plist` | `CFBundleName` / `CFBundleDisplayName` 改为「1401汉化」 |
-| `Contents/Resources/efi_rules.json` | **未改动** |
 | 其余全部文件 | **未改动** |
 
 ## 许可证

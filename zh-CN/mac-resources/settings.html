@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>驱动设置</title>
+<style>
+:root{--bg:#fff;--fg:#1c1c1e;--mut:#6b6b70;--line:#d9d9de;--card:#f5f5f7;--acc:#5b4bd6;--bad:#c0392b;--ok:#1e8e4e}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#f2f2f5;--mut:#9a9aa2;--line:#3a3a40;--card:#1f1f23;--acc:#9a8cff;--bad:#ff7b6b;--ok:#4fd18b}}
+*{box-sizing:border-box}body{margin:0;padding:20px 24px;background:var(--bg);color:var(--fg);font:13px -apple-system,system-ui,sans-serif}
+h1{font-size:18px;margin:0 0 4px}h2{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:24px 0 8px}
+p.lead{color:var(--mut);margin:0 0 8px}.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.row{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center}.t{font-weight:600}.h{color:var(--mut);grid-column:1/-1}
+.msg{grid-column:1/-1;min-height:1em}.msg.bad{color:var(--bad)}.msg.ok{color:var(--ok)}
+select,input[type=text],input[type=number]{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:4px 6px}
+button{font:inherit;border:1px solid var(--acc);color:var(--acc);background:transparent;border-radius:6px;padding:4px 12px;cursor:pointer}
+button:disabled{opacity:.4;cursor:default}.gpu{font-family:ui-monospace,Menlo,monospace;font-size:12px}.fact{color:var(--mut)}
+.mask label{margin-right:10px}.warn{color:var(--bad)}
+</style></head><body>
+<h1>驱动设置</h1>
+<p class="lead">每处改动都会在写入前完整展示并征得你的确认。显示类设置为引导参数，重启后生效。</p>
+<div id="warn" class="warn"></div>
+<h2>你的 GPU</h2><div id="gpus"><p class="lead">正在读取硬件...</p></div>
+<div id="groups"></div>
+<script>
+const NMS={on(m){if(m.event==='load')render(m.data);if(m.event==='result')result(m.data)}};
+const post=o=>webkit.messageHandlers.nmset.postMessage(o);
+const $=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e};
+let displays=[];
+function render(d){
+  displays=d.displays||[];window.NMS_GPUS=d.gpus.length;
+  if(!d.bootArgsSafe)document.getElementById('warn').textContent='当前的引导参数包含本面板无法改写的字符，因此显示设置在这里是只读的。';
+  const g=document.getElementById('gpus');g.textContent='';
+  if(!d.gpus.length)g.append($('p','lead','系统看不到任何 NVIDIA GPU。'));
+  d.gpus.forEach(x=>{const c=$('div','card');c.append($('div','gpu',x.line));
+    const f=Object.entries(x.facts).map(([k,v])=>k.replace('nvrm-','')+': '+v).join('   ');if(f)c.append($('div','gpu fact',f));g.append(c)});
+  const groups={};d.settings.forEach(s=>(groups[s.group]=groups[s.group]||[]).push(s));
+  const host=document.getElementById('groups');host.textContent='';
+  for(const [name,list] of Object.entries(groups)){host.append($('h2',null,name));list.forEach(s=>host.append(row(s,d.bootArgsSafe)))}
+}
+function row(s,safe){
+  const c=$('div','card row');c.id='s-'+s.id;c.append($('div','t',s.title));
+  const ctl=$('div');let get;
+  if(s.id==='surround'){
+    const m=$('span','mask');const boxes=[];
+    for(let i=0;i<8;i++){const l=$('label');const b=document.createElement('input');b.type='checkbox';boxes.push(b);l.append(b,' '+i);m.append(l)}
+    const cur=/^\d+$/.test(s.current)?parseInt(s.current):0;boxes.forEach((b,i)=>b.checked=!!(cur&(1<<i)));
+    ctl.append(m);get=()=>{const v=boxes.reduce((a,b,i)=>a|(b.checked?1<<i:0),0);return v?String(v):'default'};
+  }else if(s.id==='card'){
+    const box=$('div');const n=Math.max(1,Math.min(8,(window.NMS_GPUS||1)));
+    const sel=(v)=>{const e=document.createElement('select');for(let i=0;i<8;i++){const o=document.createElement('option');o.value=String(i);o.textContent=i===0?'0 (主卡)':String(i);e.append(o)}e.value=v;return e};
+    const parsed={def:null,apps:[]};
+    if(s.current!=='default'){if(/^[0-7]$/.test(s.current))parsed.def=s.current;else s.current.split(',').forEach(t=>{const [k,v]=t.split('=');if(k==='*')parsed.def=v;else if(k&&v)parsed.apps.push([k,v])})}
+    const defRow=$('div');const defSel=sel(parsed.def===null?'0':parsed.def);const defOn=document.createElement('input');defOn.type='checkbox';defOn.checked=parsed.def!==null;
+    defRow.append(defOn,' 其余所有应用使用卡 ',defSel);box.append(defRow);
+    const list=$('div');box.append(list);
+    const addRow=(name,card)=>{const r=$('div');const t=document.createElement('input');t.type='text';t.placeholder='可执行文件名';t.value=name;t.size=16;const c=sel(card);const x=$('button',null,'移除');x.onclick=()=>r.remove();r.append(t,' 使用卡 ',c,' ',x);list.append(r)};
+    parsed.apps.forEach(([k,v])=>addRow(k,v));
+    const add=$('button',null,'添加应用');add.onclick=()=>addRow('','1');box.append(add);
+    box.append($('div','h','本机检测到 '+n+' 张 NVIDIA 卡。第一张之外的卡需要开启「多张 NVIDIA 卡」设置并重启。'));
+    ctl.append(box);
+    get=()=>{const parts=[];list.querySelectorAll('div').forEach(r=>{const name=r.querySelector('input').value.trim();if(name)parts.push(name+'='+r.querySelector('select').value)});
+      if(defOn.checked)parts.push('*='+defSel.value);
+      if(!parts.length)return 'default';
+      if(parts.length===1&&defOn.checked)return defSel.value;
+      return parts.join(',')};
+  }else if(s.kind==='bool'||s.kind==='enum'){
+    const sel=document.createElement('select');const names=s.kind==='enum'?Object.keys(s.valueMap):[];const opts=['default'].concat(s.kind==='bool'?['on','off']:names);
+    opts.forEach(o=>{const e=document.createElement('option');e.value=o;e.textContent=o;sel.append(e)});
+    const cv=s.current;sel.value=cv==='1'&&s.kind==='bool'?'on':cv==='0'&&s.kind==='bool'?'off':(s.kind==='enum'?(names.find(k=>s.valueMap[k]===cv)||'default'):'default');
+    ctl.append(sel);get=()=>sel.value;
+  }else{
+    const inp=document.createElement('input');inp.type='text';inp.value=s.current==='default'?'':s.current;inp.placeholder='默认';inp.size=18;
+    ctl.append(inp);get=()=>inp.value.trim()||'default';
+  }
+  const btn=$('button',null,'应用');btn.disabled=(s.where==='bootarg'&&!safe);
+  btn.onclick=()=>{c.querySelector('.msg').className='msg';c.querySelector('.msg').textContent='';post({act:'apply',id:s.id,value:get()})};
+  const right=$('div');right.style.display='flex';right.style.gap='8px';right.append(ctl,btn);c.append(right);
+  c.append($('div','h',s.help+(s.where==='bootarg'?'（需重启）':'')));
+  if(s.id==='surround'&&displays.length)c.append($('div','h','当前已连接的显示器：'+displays.join('、')+'。请勾选组成同一个屏幕的帧缓冲编号。'));
+  c.append($('div','msg'));return c}
+function result(r){const c=document.getElementById('s-'+r.id);if(!c)return;const m=c.querySelector('.msg');m.className='msg '+(r.ok?'ok':'bad');m.textContent=r.message}
+post({act:'load'});
+</script></body></html>

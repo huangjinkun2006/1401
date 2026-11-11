@@ -38,34 +38,34 @@
 <p class="sh">操作流程</p>
 <ol class="todo">
 <li id="s1"><b>获取驱动。</b> <span id="s1t"></span> <button type="button" class="b go" id="dl" hidden>下载驱动</button> <span id="dlp"></span></li>
-<li id="s2"><b>先看清楚再动手。</b> 1401 会读取你的 OpenCore 配置，并列出它将做出的每一项更改——不做任何实际改动。（macOS 会要求输入密码。） <button type="button" class="b" id="dry" disabled>预览更改</button></li>
-<li id="s3"><b>安装。</b> 先备份你的 OpenCore 配置，然后精确执行上面列出的更改，安装驱动，并在启动菜单中添加 <i>1401: Remove NVIDIA driver</i>（卸载 NVIDIA 驱动）回退项。 <button type="button" class="b go" id="go" disabled>安装驱动</button></li>
-<li id="s4"><b>重启。</b> 如果 macOS 提示系统扩展被阻止，请打开 <a href="#" id="priv">隐私与安全性</a>，点击允许，然后再重启一次。 <button type="button" class="b" id="rs" disabled>立即重启</button></li>
+<li id="s2"><b>先看清楚再动手。</b> 1401 会读取你的 OpenCore 配置，并列出它要做的每一处改动。此步不会改任何东西。（macOS 会要求输入密码。） <button type="button" class="b" id="dry" disabled>预览改动清单</button></li>
+<li id="s3"><b>安装。</b> 自动备份你的 OpenCore 配置，只执行清单中列出的改动，安装驱动，并在启动菜单里加入 <i>1401: Remove NVIDIA driver</i>。 <button type="button" class="b go" id="go" disabled>安装驱动</button></li>
+<li id="s4"><b>重启。</b> 如果 macOS 提示系统扩展被阻止，打开 <a href="#" id="priv">隐私与安全性</a>，点「允许」，然后再重启一次。 <button type="button" class="b" id="rs" disabled>立即重启</button></li>
 </ol>
-<p id="efirow" hidden>无法确认启动分区。请选择本机启动时所用的 OpenCore 分区： <select id="efi"></select></p>
+<p id="efirow" hidden>无法确认启动分区。请选择本机启动时所用的 OpenCore 分区： <select id="efi"></select> <button type="button" class="b" id="cfgpick">手动选择 config.plist 文件...</button></p>
 </div>
 
-<div id="logwrap" class="pane card" hidden><p class="sh">1401 正在做什么</p><pre id="log" aria-live="polite"></pre>
+<div id="logwrap" class="pane card" hidden><p class="sh">1401 正在进行的工作</p><pre id="log" aria-live="polite"></pre>
 <p class="small"><a href="#" id="logs">打开日志文件夹</a></p></div>
 
 <div class="pane card"><p class="sh">更新</p>
-<p>1401 会检查最新的 NullMoth 驱动和最新的 1401 应用。应用会自我更新并重新打开；驱动会先下载，与官方公布的 SHA-256 校验后，按与上面相同的流程安装，安装前会先备份你的 OpenCore 配置。</p>
+<p>1401 会检查最新的 NullMoth 驱动和最新的 1401 应用。应用会自我更新并重新打开；驱动则按上面的流程下载、对照官方 SHA-256 校验后安装，且安装前会先备份你的 OpenCore 配置。</p>
 <p class="row"><button type="button" class="b go" id="updchk">检查更新</button> <button type="button" class="b go" id="upddrv" hidden>更新驱动</button> <button type="button" class="b go" id="updapp" hidden>更新应用</button> <span id="updr"></span></p>
-<p><b>抢先更新。</b> 新驱动会先推送给打开此选项的用户，等他们的机器验证没有问题后再向所有人发布。打开它可提前一两天拿到新版本，并在出现问题时上报日志。</p>
+<p><b>抢先更新。</b> 新驱动会先推送给开启此选项的用户，等他们的机器确认没有问题后再向所有人开放。开启后可提前一两天拿到新版本，并在出现异常时提交日志。</p>
 <p class="row"><button type="button" class="b" id="earlyon">开启抢先更新</button> <button type="button" class="b" id="earlyoff" hidden>关闭抢先更新</button> <span id="earlyr"></span></p></div>
 
-<div class="pane card"><p class="sh">更新到 macOS 26 Tahoe</p>
-<p>在 macOS 15 上，<b>为本机准备 Tahoe</b> 会安装或更新驱动并暂停其加载，同时向安装器提供其所需的小容量 GPU BAR 以保证安装界面正常显示。随后在软件更新中安装 macOS 26；更新后的首次开机会自动完成 Tahoe 版驱动的设置并自行重启一次。<b>取消 Tahoe 准备</b>则会恢复一切原状。</p>
+<div class="pane card"><p class="sh">升级到 macOS 26 Tahoe</p>
+<p>在 macOS 15 上，<b>为本机准备 Tahoe</b> 会安装或更新驱动、将其挂起（park），并给安装器提供屏幕点亮所需的小容量 GPU BAR 设置。之后从「软件更新」安装 macOS 26；更新后的首次开机会自动完成驱动的 Tahoe 适配并自行重启一次。<b>取消 Tahoe 准备</b> 则会还原全部改动。</p>
 <p class="row"><button type="button" class="b" id="upd" disabled>为本机准备 Tahoe</button> <button type="button" class="b" id="swu" hidden>打开软件更新</button> <button type="button" class="b" id="updc">取消 Tahoe 准备</button> <span id="updt"></span></p></div>
 
 <div class="pane card"><p class="sh">如果重启后出了问题</p>
-<p>在 OpenCore 启动菜单选择 <b>1401: Remove NVIDIA driver</b>，再选你的 macOS 磁盘。1401 会移除驱动并重启，本机即恢复到安装前的状态（包括 OpenCore 配置）。屏幕可能保持黑屏直到第二次重启完成。</p>
+<p>在 OpenCore 启动菜单中选择 <b>1401: Remove NVIDIA driver</b>，再选你的 macOS 磁盘。1401 会卸载驱动并重启，本机将恢复到安装前的状态（包括 OpenCore 配置）。在第二次重启之前屏幕可能保持黑屏。</p>
 <p class="row"><button type="button" class="b" id="rm">卸载驱动</button></p></div>
 </section>
 
 <section id="t-efi" hidden>
 <div class="head"><div><h1>检查我的 EFI</h1>
-<p class="lede">将本机启动所用的 OpenCore 配置与同类机型验证可行的设置做对比，解释需要修改的地方并给出步骤。它只读取、不做任何更改。会要求输入一次密码。</p></div>
+<p class="lede">对照与你机型相同/相近的机器验证过的配置，检查本机启动所用的 OpenCore 设置，并解释需要修改的地方及具体步骤。只读不写：不会改动任何东西。会要求输入一次密码。</p></div>
 <button type="button" class="b go" id="efichk">检查我的 EFI</button></div>
 <p id="efichkr"></p>
 <div id="efiout"></div>
@@ -74,56 +74,99 @@
 <section id="t-tools" hidden>
 <h1>工具</h1>
 <div class="pane card"><p class="sh">挂载 EFI</p>
-<p>EFI 分区存放着你的引导设置。1401 会找到本机启动所用的那个分区，挂载并在访达中打开。会要求输入一次密码。</p>
+<p>EFI 分区保存着你的引导设置。1401 会找到本机启动所用的那个分区，挂载并在访达中打开它。会要求输入一次密码。</p>
 <p class="row"><button type="button" class="b go" id="efimount">挂载 EFI</button> <span id="efimountr"></span></p></div>
-<div class="pane card"><p class="sh">启动文字（啰嗦模式）</p>
-<p>开机时显示 macOS 的启动过程，代替苹果标志。开机卡住时很有用。下次重启后生效。</p>
-<p class="row"><button type="button" class="b" id="vbon">开启啰嗦模式</button> <button type="button" class="b" id="vboff">关闭啰嗦模式</button></p></div>
-<div class="pane card"><p class="sh">内置屏幕亮度（笔记本）</p>
-<p>适用于内置屏幕直连 NVIDIA GPU 的笔记本（MUX 已设为 Discrete 或 dGPU）。它让驱动从笔记本固件读取屏幕亮度控制。默认关闭，因为该调用曾导致部分电脑在 GPU 启动时卡住；如果你也卡在那里，请在启动菜单选择 <b>1401: Start once without NVIDIA driver</b>，然后在这里把它关掉。</p>
-<p class="row"><button type="button" class="b" id="blon">开启亮度控制</button> <button type="button" class="b" id="bloff">关闭</button></p></div>
-<div class="pane card"><p class="sh">HiDPI（Retina）分辨率</p>
-<p>让 HiDPI 的"逻辑分辨率"生效，例如在 2560 x 1440 屏幕上使用 1920 x 1080，包括用 BetterDisplay 等工具添加的分辨率。没有它，这类分辨率会被拒绝并回退。驱动会以最高两倍于屏幕尺寸的分辨率绘制桌面，显存占用会更大。下次重启后生效。</p>
-<p class="row"><button type="button" class="b" id="hdon">开启 HiDPI 分辨率</button> <button type="button" class="b" id="hdoff">关闭</button></p></div>
-<div class="pane card"><p class="sh">AMD / Intel GPU 和 NPU 驱动（测试）</p>
-<p>面向 macOS 没有驱动的 AMD 和 Intel GPU（Ryzen APU、Radeon RX 7000/9000、Intel Iris Xe 与 Arc 显卡），以及 Intel Core Ultra 和 AMD Ryzen AI 处理器中的 NPU。这是早期测试版：你"发送日志"上报的信息就是它被修好的途径。它只从 linux-firmware 下载你的 GPU 和 NPU 所需的固件（每个文件都校验），下次重启后生效。</p>
-<p>如果这块 GPU 正在驱动你的屏幕，屏幕可能保持黑屏。那时请在启动菜单选择 <b>1401: Start once without NVIDIA driver</b>（它也会暂停该驱动），然后在这里关掉。</p>
-<p class="row"><button type="button" class="b" id="gpuon">开启测试驱动</button> <button type="button" class="b" id="gpuoff">关闭</button></p>
-<p><b>测试计划。</b> 测试驱动开启期间，1401 会在每次重启后发送一份简短报告：驱动的内核消息、崩溃记录，以及你的 GPU 型号和构建版本（姓名和序列号已移除）。随时可以退出。</p>
-<p class="row"><button type="button" class="b" id="teston">加入测试计划</button> <button type="button" class="b" id="testoff">退出</button> <span id="testr"></span></p></div>
-<div class="pane card" id="xecard" hidden><p class="sh">Intel Xe 显卡（WhateverXe，测试）</p>
-<p>面向 macOS 15.8 / 26.7 及更高版本上的 Tiger Lake、Alder Lake 和 Raptor Lake Intel 显卡。它使用 b00t0x 的 <a href="https://github.com/b00t0x/WhateverXe">WhateverXe</a>：1401 先把它加入 OpenCore，你重启后再按一次<b>开启</b>来安装其显卡组件。这些组件直接来自作者的 GitHub，逐个校验。开启期间 WhateverGreen 会被关闭；<b>关闭</b>会恢复一切。</p>
-<p>如果重启后屏幕黑屏，请在启动菜单选择 <b>1401: Start once without NVIDIA driver</b>：那次启动同样不会加载 WhateverXe。然后在这里关掉。</p>
+<div class="pane card"><p class="sh">启动文字（verbose 模式）</p>
+<p>开机时显示 macOS 的启动过程细节，而不是只有苹果标志。排查启动卡住时有用。下次重启后生效。</p>
+<p class="row"><button type="button" class="b" id="vbon">开启 verbose 模式</button> <button type="button" class="b" id="vboff">关闭 verbose 模式</button></p></div>
+<div class="pane card"><p class="sh">内建屏幕亮度（笔记本）</p>
+<p>适用于内屏直连 NVIDIA GPU 的笔记本（MUX 已设为 Discrete 或 dGPU）。开启后驱动可从笔记本固件读取面板的亮度控制。默认关闭，因为该调用曾导致部分机器在 GPU 启动时卡住；如果你也卡在那里，请在启动菜单选 <b>1401: Start once without NVIDIA driver</b>，然后在这里把它关掉。</p>
+<p class="row"><button type="button" class="b" id="blon">开启亮度控制</button> <button type="button" class="b" id="bloff">关闭亮度控制</button></p></div>
+<div class="pane card"><p class="sh">HiDPI（Retina）分辨率模式</p>
+<p>让 HiDPI「看起来像」分辨率可用，例如在 2560x1440 屏上使用 1920x1080，包括用 BetterDisplay 等工具添加的自定义分辨率。不开启时这类分辨率会被拒绝并弹回。开启后驱动会以最高两倍于屏幕的尺寸绘制桌面，会占用更多显存。下次重启后生效。</p>
+<p class="row"><button type="button" class="b" id="hdon">开启 HiDPI 模式</button> <button type="button" class="b" id="hdoff">关闭 HiDPI 模式</button></p></div>
+<div class="pane card" id="autologin" hidden><p class="sh">自动登录</p>
+<p>驱动缺失期间，1401 开启了自动登录以便本机能进入桌面。这会把你的密码以可被任何能读取磁盘的人还原的形式存储。驱动正常工作后，请关闭它。</p>
+<p class="row"><button type="button" class="b" id="autologinoff">关闭自动登录</button></p></div>
+<div class="pane card"><p class="sh">混合输出笔记本（内屏由 Intel 或 AMD 处理器显卡驱动）</p>
+<p>多数游戏笔记本把内屏接在处理器显卡上，NVIDIA 卡没有可绘制的屏幕。此功能会在 NVIDIA 驱动旁安装一个面板驱动（Intel 显卡用 Intel 版，带 Radeon 显卡的 Ryzen 用 AMD 版）：NVIDIA 负责渲染，渲染完的每一帧经处理器显卡送到屏幕。Ryzen 笔记本需先关闭 OpenCore 的 Fix PAT 补丁（见 docs/HYBRID-LAPTOPS.md，仅英文版）。<b>复制（copy）</b>方式适用于 Intel 第 11 代及更新；<b>原位扫描输出（scan out in place）</b>是第 12、13 代上更快的等级。此功能尚未在混合输出笔记本上实测，你的「发送日志」就是帮它完善的方式。它需要 NVIDIA 驱动已安装，且上方已校验驱动包。</p>
+<p>如果屏幕保持黑屏，请在启动菜单选 <b>1401: Start once without NVIDIA driver</b>，然后在这里关闭。关闭时会一并移除面板驱动。</p>
+<p class="row"><button type="button" class="b" id="hybcopy">开启（复制方式）</button> <button type="button" class="b" id="hybimport">开启（原位扫描输出）</button> <button type="button" class="b" id="hyboff">关闭</button> <span id="hybstate"></span></p></div>
+<div class="pane card" id="vmdpane" hidden><p class="sh">位于 Intel VMD 或 RAID 之后的硬盘</p>
+<p>macOS 只能使用固件以普通 AHCI 或 NVMe 磁盘形式呈现的硬盘。这台机器使用 Intel VMD 或 RAID 存储控制器，内置硬盘可能因此对 macOS 隐藏。两种绕过办法：</p>
+<p><b>安装到外置硬盘。</b> 插上 USB SSD（或不在 VMD 之后的 SSD），从 1401 U 盘把 macOS 装上去。内置硬盘和 Windows 不会被动到。在 1401 for Windows 中，构建前勾选 <b>Install macOS on an external drive</b>。</p>
+<p><b>关闭 VMD。</b> 1401 for Windows 在构建时会显示你主板的 BIOS 设置路径，并提供 <b>Prepare Windows</b>、<b>Finish</b> 和 <b>Undo</b> 三个选项：Prepare 创建还原点、暂停 BitLocker 并设置标准驱动；随后你在 BIOS 中关闭 VMD；Finish 让 Windows 恢复正常启动；Undo 把每个值改回原样。这些步骤只能在 Windows 上执行，所以本应用只作说明。</p></div>
+<div class="pane card" id="exppane"><p class="sh">实验性驱动与功能</p>
+<p class="row"><button id="expall" type="button">全选</button> <button id="expnone" type="button">全不选</button></p>
+<p>均为离线编写与测试，尚未在所有机型上验证。每一项在勾选并点击「应用」前都保持<b>关闭</b>，且都需要<b>重启</b>。取消勾选再点「应用」即可完全还原；你自己手动设置的参数永远不会被移除。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-kbl" data-id="kbl"> <b>键盘背光</b></label> 笔记本键盘背光按键与亮度调节（NMKbdBacklight kext）。由 OpenCore 加载的驱动：1401 2.9 构建的 EFI 已自带且默认关闭，「应用」会将其开启（旧 EFI 会先从已装的 NVIDIA 驱动中复制进来）。需要 VirtualSMC。离线构建与校验；尚未在笔记本上实测。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-hda" data-id="hda"> <b>NVIDIA 显示音频（含音量控制，macOS 15）</b></label> 来自 NVIDIA 卡的 HDMI / DisplayPort 音频，经 Apple HD Audio 驱动输出，音量滑块和静音可用（NMHDA 驱动）。由 OpenCore 加载，管理方式同键盘背光。仅限 macOS 15：macOS 26 使用 NMXAudio。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-kblhid" data-id="kblhid"> <b>键盘背光（HID 通道）</b></label> 走部分笔记本使用的 HID 通道，功能相同。需先开启上一项。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-tgp" data-id="tgp"> <b>笔记本 GPU 功耗上限</b></label> 接电源时允许 NVIDIA GPU 使用平台完整功耗上限（Dynamic Boost）；用电池时自动释放。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-igpuproxy" data-id="igpuproxy"> <b>内屏走核显</b></label> 混合输出笔记本：当面板接在核显上时，通过代理显示头呈现内屏。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-xvt" data-id="xvt"> <b>AMD / Intel 视频解码</b></label> AMD 和 Intel GPU 上的 AV1 与 VP9 硬件解码。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-hybrid20" data-id="hybrid20"> <b>混合输出笔记本：最新 Intel 显卡</b></label> 让混合面板驱动在 Lunar Lake 与 Panther Lake 显卡上正常唤醒。仅在混合笔记本模式开启时有关；依据 Linux 显示代码编写，尚未在该硬件上运行。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-rtd3" data-id="rtd3"> <b>空闲 GPU 深度休眠</b></label> 空闲时让 NVIDIA 卡进入最深省电状态（runtime D3）。离线编写与测试；其功耗收益和唤醒表现在推荐前会先在工作室机器上测量。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-aspm" data-id="aspm"> <b>空闲链路省电</b></label> 卡空闲时让 NVIDIA 卡与主板间的 PCIe 链路进入休眠（ASPM L1），两端都支持时才生效。默认关闭：驱动会保持固件设定的链路状态，因为在未针对此设计的主板上链路休眠可能导致卡死或掉卡。如果空闲时屏幕冻结，请把这项关掉。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-gameprio" data-id="gameprio"> <b>游戏 GPU 优先级</b></label> 提升游戏的 GPU 调度优先级。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-hwrt" data-id="hwrt"> <b>硬件光线查询</b></label> 通过 NullMoth 自己的加速结构在 RT 核心上执行光线查询。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-curves" data-id="curves"> <b>光线追踪中的曲线图元</b></label> 光线查询中支持曲线（软件遍历，速度较慢）。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-tile" data-id="tile"> <b>Metal 瓦片着色</b></label> 为使用该特性的应用启用瓦片着色。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-icb" data-id="icb"> <b>GPU 编码的命令列表</b></label> 由 GPU 写入的间接命令缓冲。</p>
+<p class="row"><button type="button" class="b" id="expapply">应用</button> <span id="expr"></span></p></div>
+<div class="pane card"><p class="sh">GPU 加速（boost）</p>
+<p>开启期间将 NVIDIA 卡锁定在最高频率，适合受 GPU 空闲到繁忙爬升限制的工作负载。代价是功耗和发热，所以在你手动开启前保持关闭。它会从已校验的驱动包安装一个小型后台任务；任何以 root 运行的内容之前都会先校验包内文件清单。关闭即停止锁频；「移除」则把任务从本机删掉。</p>
+<p class="row"><button type="button" class="b" id="boston">开启</button> <button type="button" class="b" id="bostoff">关闭</button> <button type="button" class="b" id="bostrm">移除任务</button> <button type="button" class="b" id="bostat">状态</button> <span id="bostr"></span></p></div>
+<div class="pane card"><p class="sh">Ryzen 笔记本功耗配置</p>
+<p>Ryzen 笔记本默认按处理器出厂功耗上限运行，用电池时又吵又热。此功能通过 NullMoth 的 RyzenAdj 构建设置一组更安静的配置（默认持续 13 W、慢速 14 W、快速 15 W、70 &deg;C；开启前可在下方修改数值）。它会安装一个只有在开启后才能与处理器电源控制器通信的小内核扩展，以及一个以 root 运行的任务。在你选择开启前保持关闭。</p>
+<p>如遇异常，在这里关闭即可：这会移除后台任务、内核扩展和引导设置。</p>
+<p class="row">瓦数：持续 <input id="ryst" type="number" min="5" max="65" value="13" style="width:4em"> 慢速 <input id="rysl" type="number" min="5" max="65" value="14" style="width:4em"> 快速 <input id="ryfa" type="number" min="5" max="65" value="15" style="width:4em"> &nbsp; 温度上限 <input id="rytm" type="number" min="50" max="100" value="70" style="width:4em"> &deg;C（瓦数 5–65，持续 ≤ 慢速 ≤ 快速；温度 50–100）</p>
+<p class="row"><button type="button" class="b" id="ryzon">开启</button> <button type="button" class="b" id="ryzoff">关闭</button> <button type="button" class="b" id="ryzstat">状态</button></p></div>
+<div class="pane card"><p class="sh">AMD / Intel GPU 与 NPU 驱动（测试版）</p>
+<p>适用于 macOS 没有驱动的 AMD 和 Intel GPU（Ryzen APU、Radeon RX 7000/9000、Intel Iris Xe 与 Arc 显卡），以及 Intel Core Ultra 和 AMD Ryzen AI 处理器中的 NPU。早期测试版本：你的「发送日志」就是帮它完善的方式。它只从 linux-firmware 下载你的 GPU 和 NPU 所需的固件（逐个文件校验），下次重启后生效。</p>
+<p>如果这块 GPU 正在驱动你的屏幕，屏幕可能保持黑屏。此时请在启动菜单选 <b>1401: Start once without NVIDIA driver</b>（它也会挂起这个驱动），然后在这里关闭。</p>
+<p class="row"><button type="button" class="b" id="gpuon">开启测试驱动</button> <button type="button" class="b" id="gpuoff">关闭测试驱动</button></p>
+<p><b>测试计划。</b> 测试驱动开启期间，每次重启后 1401 会发送一份简短报告：驱动的内核消息、崩溃记录（如有）以及你的 GPU 和构建版本（已去除名称与序列号）。可随时退出。</p>
+<p class="row"><button type="button" class="b" id="teston">加入测试计划</button> <button type="button" class="b" id="testoff">退出测试计划</button> <span id="testr"></span></p></div>
+<div class="pane card" id="xecard" hidden><p class="sh">Intel Xe 显卡（WhateverXe，测试版）</p>
+<p>适用于 macOS 15.8 或 26.7 及以上版本的 Tiger Lake、Alder Lake 和 Raptor Lake Intel 显卡。使用 b00t0x 的 <a href="https://github.com/b00t0x/WhateverXe">WhateverXe</a>：1401 把它加入 OpenCore，你重启后再次点击 <b>开启</b> 即可安装其显卡组件包。组件直接来自作者的 GitHub，逐个校验。开启期间 WhateverGreen 会被停用；<b>关闭</b>会还原所有改动。</p>
+<p>如果重启后屏幕保持黑屏，请在启动菜单选 <b>1401: Start once without NVIDIA driver</b>：该次启动同样会停用 WhateverXe。然后在这里关闭。</p>
 <p class="row"><button type="button" class="b" id="xeon">开启</button> <button type="button" class="b" id="xeoff">关闭</button></p></div>
+<div class="pane card" id="gmcard"><p class="sh">游戏模式</p>
+<p>当游戏位于前台并全屏时，优先把处理器让给游戏、限制后台索引和其他应用占用显卡，退出游戏后全部还原。开启期间菜单栏会出现一个手柄图标。开启前保持关闭，关闭即移除。</p>
+<p class="row"><button type="button" class="b" id="gmon">开启</button> <button type="button" class="b" id="gmoff" hidden>关闭</button> <span id="gmr" class="small"></span></p></div>
 <div class="pane card"><p class="sh">麦克风与摄像头</p>
-<p>装上驱动后，macOS 在应用使用麦克风或摄像头前不再询问，导致 Discord 之类的应用只有静音，也永远不会出现在"隐私与安全性"里。在这里选择应用，授权其使用麦克风、摄像头和屏幕录制。</p>
-<p class="row"><button type="button" class="b" id="tccg">选择一个应用...</button> <span id="tccr"></span></p></div>
-<div class="pane card"><p class="sh">测绘我的 GPU（实验性）</p>
-<p>对本机 GPU 做几分钟的测量：Metal 报告的内容、正确性检查、显存与算力速度，以及小型测试着色器。不做任何更改，也不动显示模式。结果保存在日志文件夹，"发送日志"会上传它，让下一版驱动能为你的显卡调优。</p>
-<p class="row"><button type="button" class="b" id="gpumap">测绘我的 GPU</button> <span id="gpumapr"></span></p></div>
+<p>装上驱动后，macOS 不会在应用使用麦克风或摄像头前征询许可，导致 Discord 之类的应用只收到静音，也从不出现在「隐私与安全性」里。在这里选择应用，授权其使用麦克风、摄像头和屏幕录制。</p>
+<p class="row"><button type="button" class="b" id="tccg">选择应用并授权...</button> <span id="tccr"></span></p></div>
+<div class="pane card"><p class="sh">驱动设置</p>
+<p>HDR、10-bit 色彩、可变刷新率、色彩范围、缩放、环绕、帧率限制等设置，并显示 GPU 的链路与显存信息。每处改动都会完整展示并先征得确认。</p>
+<p class="row"><button type="button" class="b" id="settings">打开驱动设置...</button></p></div>
+<div class="pane card"><p class="sh">GPU 画像（实验性）</p>
+<p>对本机 GPU 进行几分钟的测量：Metal 报告了什么、正确性检查、显存与算力速度，以及若干测试着色器。不改动任何东西，也不触碰显示模式。结果保存在日志文件夹，「发送日志」会一并上传，让下一版驱动能针对你的显卡调优。</p>
+<p class="row"><button type="button" class="b" id="gpumap">测量我的 GPU</button> <span id="gpumapr"></span></p></div>
 <div class="pane card" id="armcard"><p class="sh">ARM 应用（自愿开启）</p>
 <div id="armreq" hidden><p><b id="armreqt"></b></p>
 <p class="row"><button type="button" class="b go" id="armreqon" hidden>开启</button> <a href="#" id="armreqno">暂不</a></p></div>
-<p>专为 Apple 芯片构建的应用可以被转译到本机运行。小应用转译需几分钟，大应用可能要一小时以上。原应用不会被改动：转译副本存放在"应用程序 &gt; NullMoth ARM"。关闭此功能会移除转译器和已转译的副本，你的 2.7 驱动不受影响。</p>
-<p class="row"><button type="button" class="b" id="armon">开启</button> <button type="button" class="b" id="armoff" hidden>关闭</button> <button type="button" class="b" id="armchk" hidden>检查本机</button> <button type="button" class="b" id="armclt" hidden>安装命令行工具</button> <button type="button" class="b go" id="armtr" hidden disabled>转译一个应用...</button></p>
+<p>仅面向 Apple 芯片构建的应用可以被转译后在本机上运行。你自己开发的 iPhone / iPad 应用（未经 App Store 加密的 .ipa）会先打包成 Mac 应用再转译。小应用转译需几分钟，大应用可能要一小时以上。原应用永不改动：转译副本放在「应用程序 &gt; NullMoth ARM」。关闭此功能会移除转译器和已转译副本，你的 2.7 驱动照常工作。</p>
+<p class="row"><button type="button" class="b" id="armon">开启</button> <button type="button" class="b" id="armoff" hidden>关闭</button> <button type="button" class="b" id="armchk" hidden>检查本机</button> <button type="button" class="b" id="armclt" hidden>安装命令行工具</button> <button type="button" class="b go" id="armtr" hidden disabled>转译应用...</button></p>
 <p id="armr"></p>
 <div id="armprog" hidden><progress id="armbar" max="100" style="width:100%"></progress>
 <p class="row"><span id="armmsg" class="small"></span> <button type="button" class="b" id="armcancel">取消</button></p></div>
 <div id="armapps"></div>
 <div id="armbrew" hidden><p><b>Homebrew</b></p>
-<p class="small">与 Apple 芯片 Mac 一样并排使用两套 Homebrew：ARM 版在 /opt/homebrew，安装 Homebrew 的 Apple 芯片软件包并为本机转译；Intel 版在 /usr/local，原生运行但多数要从源码构建，因为 Homebrew 已停止发布 Intel 软件包。在终端里，<code>abrew</code> 始终是 ARM，<code>ibrew</code> 始终是 Intel，<code>brew</code> 则由你在下面选择。</p>
+<p class="small">两套 Homebrew 并存，和 Apple 芯片 Mac 一样：ARM 版在 /opt/homebrew，安装 Homebrew 的 Apple 芯片包并为本机转译；Intel 版在 /usr/local，原生运行但多数从源码构建，因为 Homebrew 已停止发布 Intel 包。在终端里，<code>abrew</code> 永远是 ARM，<code>ibrew</code> 永远是 Intel，<code>brew</code> 则由你在下面选择。</p>
 <p class="row"><select id="armbrewpick"><option value="both">ARM 和 Intel</option><option value="arm">仅 ARM (/opt/homebrew)</option><option value="intel">仅 Intel (/usr/local)</option></select> <select id="armbrewprim"><option value="arm">brew = ARM</option><option value="intel">brew = Intel</option></select> <button type="button" class="b" id="armbrewgo">设置 Homebrew</button></p>
 <p id="armbrewr" class="small"></p></div></div>
 </section>
 
 <section id="t-usb" hidden>
 <h1>USB 端口</h1>
-<div class="pane card"><p class="sh">定制你的 USB 端口映射</p>
-<p>macOS 每个 USB 控制器最多只用 15 个端口，而且不知道你的机箱实际接了哪些。1401 会在你插设备时监听各端口，然后为选中的端口写入映射。重启后再逐个测试，包括 USB-C 正反两个方向和睡眠唤醒。</p>
+<div class="pane card"><p class="sh">映射你的 USB 端口</p>
+<p>macOS 每个 USB 控制器最多只用 15 个端口，也不知道你的机箱实际有哪几个。1401 会在你插设备时观察端口，然后为你选中的端口写入映射表。重启后请再次测试，包括 USB-C 正反两个方向和睡眠唤醒。</p>
 <ol class="todo">
-<li><b>开始监听。</b> <button type="button" class="b go" id="uw">开始</button></li>
-<li><b>把你用的每个端口都插一遍设备，一次一个。</b>最好用 USB 3 U 盘；每个 USB-C 端口正反各插一次。1401 看到端口时它会变<span class="good">绿</span>。</li>
-<li><b>检查列表</b>，为每个端口选择插头类型，然后 <button type="button" class="b go" id="uwr">写入映射</button>（macOS 会要求输入密码；你的 OpenCore 配置会先备份）。</li>
+<li><b>开始观察。</b> <button type="button" class="b go" id="uw">开始</button></li>
+<li><b>把你用的每个端口逐个插上设备。</b> USB 3 U 盘最理想；USB-C 口正反各插一次。1401 看到某个端口时它会变<span class="good">绿色</span>。</li>
+<li><b>检查列表</b>，为每个端口选择插头类型，然后 <button type="button" class="b go" id="uwr">写入映射表</button>（macOS 会要求输入密码；你的 OpenCore 配置会先被备份）。</li>
 </ol>
 <p id="uerr" class="bad"></p></div>
 <div id="ports"></div>
@@ -132,20 +175,21 @@
 <section id="t-crash" hidden>
 <h1>还有问题？</h1>
 <div class="pane card"><p class="sh">发送日志</p>
-<p>1401 会发送它的操作记录、驱动状态、崩溃报告、OpenCore 启动日志和数字化的设备映射，姓名、序列号和地址都会移除。你会得到一个报告 ID，可以贴在 NullMoth Discord 里求助。</p>
-<p class="row"><button type="button" class="b go" id="sl">向 NullMoth 发送日志</button> <button type="button" class="b" id="fl">录下闪烁画面</button></p>
-<p class="small">录下闪烁画面：屏幕闪烁时按下它。1401 会录制 20 秒驱动向显示器输出画面的过程，随日志一起发送。</p>
+<p>1401 会发送它做过的操作、驱动状态、崩溃报告、OpenCore 启动日志和数值化设备映射，并已去除名称、序列号和地址。你会得到一个报告 ID，可贴到 NullMoth Discord 求助。</p>
+<p class="small">如果驱动无法转译某个着色器，最多 24 个这样的着色器（每个包最多 4 MB，来自你运行过的应用）会随报告附上，以便复现问题。只有你按下按钮才会发送。不想让驱动保留它们，可创建空文件 /Library/GPUBundles/nvmtl/no-failed-air。</p>
+<p class="row"><button type="button" class="b go" id="sl">向 NullMoth 发送日志</button> <button type="button" class="b" id="fl">记录闪烁</button></p>
+<p class="small">记录闪烁：屏幕闪烁时按下它。1401 会记录 20 秒驱动向显示器送帧的过程，并随日志一起发送。</p>
 <p id="slr"></p></div>
 <div class="pane card"><p class="sh">崩溃报告</p>
-<p>如果驱动导致本机崩溃，1401 会在下次登录时询问是否生成报告。它是桌面上的一个文本文件，包含你的硬件信息和故障原因，姓名、Mac 名称、序列号、地址和文件路径都已移除。<b>1401 绝不会自行发送它。</b></p>
+<p>如果驱动导致本机崩溃，1401 会在下次登录时询问是否生成报告。它是你桌面上的一份文本文件，包含硬件信息和故障详情，且已去除你的姓名、Mac 名称、序列号、地址和文件路径。<b>1401 绝不会自行发送它。</b></p>
 <p id="cr"></p>
-<p class="row"><button type="button" class="b" id="mk">生成报告</button> <button type="button" class="b" id="up">打开上传页面</button> <button type="button" class="b" id="cf">请作者喝杯咖啡</button> <button type="button" class="b" id="cr">致谢名单</button></p></div>
+<p class="row"><button type="button" class="b" id="mk">生成报告</button> <button type="button" class="b" id="up">打开上传页面</button> <button type="button" class="b" id="cf">请作者喝咖啡</button> <button type="button" class="b" id="cr">致谢名单</button></p></div>
 <div class="pane card"><p class="sh">可选诊断</p>
-<p>此版本不支持采集。发送日志仍会收集硬件、内核和崩溃证据。安全设置没有任何更改。</p>
-<p class="row"><button type="button" class="b" id="od">检查可选诊断</button> <button type="button" class="b" id="dr">导入已保存的回执</button></p>
-<p class="small">检查可用性不会留下任何痕迹。已保存的回执需要单独的会话上传权限和一次独立的"发送日志"确认。</p>
+<p>此版本中捕获功能不可用。「发送日志」仍会收集硬件、内核与恐慌（panic）证据。安全设置没有任何变化。</p>
+<p class="row"><button type="button" class="b" id="od">检查可选诊断</button> <button type="button" class="b" id="dr">导入已保存的凭据回执</button></p>
+<p class="small">检查可用性不会启动任何采集。已保存的回执需要其独立的会话上传权限和一次单独的「发送日志」确认。</p>
 <p id="odr"></p><p id="drr"></p></div>
-<p class="legal">© 2026 NullMoth Systems。NullMoth 与飞蛾标志是 NullMoth Systems 的商标。本汉化版为社区修改，遇到问题请以英文原版为准。</p>
+<p class="legal">© 2026 NullMoth Systems. NullMoth 和飞蛾标志是 NullMoth Systems 的商标。</p>
 </section>
 
 </main>
