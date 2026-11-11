@@ -6,7 +6,7 @@
 
 ## 这是什么
 
-官方 1401 安装器目前只有英文界面。这个汉化包把 macOS 版应用的全部界面文字翻译成了简体中文，功能逻辑与官方原版**完全一致**，没有任何行为改动。
+官方 1401 安装器目前只有英文界面。这个汉化包把 macOS 版应用的全部界面文字翻译成了简体中文，驱动安装、检查、报告等原有逻辑与官方原版一致；另新增「使用说明」和「AI 日志解析」两个汉化版专属页面（不改动驱动本体与 EFI 行为）。
 
 汉化内容覆盖（v2.9 全量）：
 
@@ -16,8 +16,9 @@
 - 「检查我的 EFI」全部 27 条检查规则：标题、说明、修复步骤（`efi_rules.json`）
 - 动态提示文本：硬件检测表（显存窗口/可变 BAR/ASPM）、诊断结论、下载进度、USB 端口映射等
 - v2.9 新增内容：键盘背光、HDMI 音量、亮度控制等实验性功能说明
+- 汉化版新增「AI 日志解析」标签页：日志离线中文诊断、可选 AI 深度分析、一键复制 AI 提示词
 
-**完整中文说明书**：见 [使用说明.md](使用说明.md)（安装前备份 EFI、五个页面功能、驱动设置 19 项说明、**「实验性驱动与功能」14 个开关的逐项作用与开启后果**、常见问题、汉化版注意事项等）。打包好的 app 里也内置了「使用说明」标签页，打开即可查看；DMG 与 zip 包内另附一份同名 Markdown。
+**完整中文说明书**：见 [使用说明.md](使用说明.md)（安装前备份 EFI、五个页面功能、驱动设置 19 项说明、**「实验性驱动与功能」14 个开关的逐项作用与开启后果**、常见问题、汉化版注意事项等）。打包好的 app 里也内置了「使用说明」标签页，打开即可查看；DMG 与 zip 包内另附一份同名 Markdown。说明书第十节专门讲「AI 日志解析」的用法与隐私边界。
 
 ## 使用方法（两种任选）
 
@@ -32,7 +33,7 @@
 ### 方式二：自己动手汉化官方原版
 
 1. 从官方渠道获取 1401 Mac 版 2.9（官网或 GitHub Release，注意核对 SHA-256）
-2. 把本目录 `mac-resources/` 下的 `index.html`、`settings.html`、`app.js`、`efi_rules.json`、`settings_catalog.json` 替换掉 `1401.app/Contents/Resources/` 下的同名文件
+2. 把本目录 `mac-resources/` 下的 `index.html`、`settings.html`、`app.js`、`app.css`、`ai_log.js`、`efi_rules.json`、`settings_catalog.json` 复制到 `1401.app/Contents/Resources/` 覆盖同名文件（`app.css`、`ai_log.js` 是汉化版新增文件）
 3. （可选）用 `Info.plist` 替换 `1401.app/Contents/Info.plist`，让 Dock 显示「1401汉化」
 4. 重新签名：`codesign -f -s - --deep 1401.app`
 
@@ -42,12 +43,14 @@
 
 | 文件 | 改动 |
 |---|---|
-| `Contents/Resources/index.html` | 全部界面文本译为简体中文；新增「使用说明」标签页（纯静态说明文档） |
+| `Contents/Resources/index.html` | 全部界面文本译为简体中文；新增「使用说明」与「AI 日志解析」两个标签页；CSP 增加 `connect-src` 以允许 AI 接口请求 |
 | `Contents/Resources/settings.html` | 驱动设置窗口全部文本译为简体中文 |
-| `Contents/Resources/app.js` | 全部状态/提示文本译为简体中文（日志协议关键字保留英文）；导航数组新增 `help` 一项；**停用官方应用自更新**，改由「查看汉化版更新」打开维护者 Release |
+| `Contents/Resources/app.js` | 全部状态/提示文本译为简体中文（日志协议关键字保留英文）；导航数组新增 `help`、`ailog`；**停用官方应用自更新**，改由「查看汉化版更新」打开维护者 Release |
+| `Contents/Resources/app.css`（新增） | AI 日志解析页所需的输入区、诊断卡片、代码块等样式 |
+| `Contents/Resources/ai_log.js`（新增） | AI 日志解析：20 多条离线诊断规则、证据提取、提示词生成、OpenAI 兼容接口调用 |
 | `Contents/Resources/efi_rules.json` | 27 条 EFI 检查规则的标题/说明/步骤译为简体中文 |
 | `Contents/Resources/settings_catalog.json` | 19 项驱动设置及分组名译为简体中文 |
-| `Contents/Info.plist` | `CFBundleName` / `CFBundleDisplayName` 改为「1401汉化」 |
+| `Contents/Info.plist` | 增加 `NSAppTransportSecurity` → `NSAllowsLocalNetworking`，允许直连本机 Ollama |
 | `Contents/MacOS/1401`（仅打包 app） | 窗口标题 `Driver settings` → 「驱动设置」 |
 | 其余全部文件 | **未改动** |
 

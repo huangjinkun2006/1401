@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; script-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; script-src 'self'; connect-src https: http://127.0.0.1:* http://localhost:* http://127.0.0.1:11434 http://localhost:11434">
 <title>1401</title>
 <link rel="stylesheet" href="app.css">
 </head><body>
@@ -22,6 +22,7 @@
 <button type="button" class="nav tab" data-t="tools" data-title="工具"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18v12H3z"/><path d="M3 7l3-3h12l3 3M10 12h4"/></svg>工具 · 挂载 EFI</button>
 <button type="button" class="nav tab" data-t="usb" data-title="USB 端口"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v14M8 7l4-4 4 4M7 13h10M9 21h6v-4H9z"/></svg>USB 端口</button>
 <button type="button" class="nav tab" data-t="crash" data-title="发送报告"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H8l-4 4z"/></svg>发送报告</button>
+<button type="button" class="nav tab" data-t="ailog" data-title="AI 日志解析"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M18 16l.8 2.2L21 19l-2.2.8L18 22l-.8-2.2L15 19l2.2-.8z"/></svg>AI 日志解析</button>
 <button type="button" class="nav tab" data-t="help" data-title="使用说明"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11a2 2 0 0 1 2 2v15H7a2 2 0 0 1-2-2z"/><path d="M5 17a2 2 0 0 1 2-2h11M9 7h6M9 11h6"/></svg>使用说明</button>
 <div class="sidefoot">驱动 <span id="ver"></span><br><a href="#" id="src">源代码</a> · <a href="#" id="ocg">OpenCore 指南</a></div>
 </nav>
@@ -195,9 +196,69 @@
 </section>
 
 
+<section id="t-ailog" hidden>
+<h1>AI 日志解析</h1>
+<p class="lede">把 -v 启动日志、panic 崩溃日志、OpenCore 日志或 1401 运行日志贴进来，先做离线中文诊断；需要更深的分析再交给 AI。日志默认不会离开这台电脑。</p>
+
+<div class="pane card" id="aidrop">
+<p class="sh">一、导入日志</p>
+<p class="small">支持直接粘贴、拖进本页，或选择 .log / .txt / .ips / .panic 文件（可多选）。点「打开日志文件夹」能找到 1401 自己生成的日志。本地解析完全离线，不联网、不上传。</p>
+<textarea id="aiinput" class="ai-in" spellcheck="false" placeholder="在这里粘贴日志…&#10;例如 -v 启动滚屏文字、崩溃报告 .ips 内容、log show 输出、1401 四步安装日志"></textarea>
+<div class="row ai-gap">
+<button type="button" class="b" id="aifilebtn">选择日志文件</button>
+<input type="file" id="aifile" class="ai-hide" multiple accept=".log,.txt,.text,.ips,.panic,.json,.rtf">
+<button type="button" class="b go" id="airun">本地智能解析</button>
+<button type="button" class="b" id="aiexample">载入示例</button>
+<button type="button" class="b" id="ailogsfolder">打开日志文件夹</button>
+<button type="button" class="b" id="aiclear">清空</button>
+<span class="small" id="aistat">尚未导入日志</span>
+</div>
+</div>
+
+<div class="pane card">
+<p class="sh">二、交给 AI 深度分析（可选）</p>
+<p class="small"><b>方式 A</b>：填好接口后点「AI 深度分析」，把日志和本地诊断摘要一起发给大模型。<b>方式 B（推荐，任何环境都能用）</b>：点「复制 AI 提示词」，再点「打开 AI 网页」粘贴进去。密钥只保存在本机，不经过 NullMoth，日志也不会自动上传。</p>
+<details class="ai-det" id="aicfg">
+<summary>接口设置（点开填写）</summary>
+<div class="ai-form">
+<label class="ai-lb">服务商预设<select id="aipreset" class="ai-fld">
+<option value="deepseek">DeepSeek</option>
+<option value="qwen">通义千问（兼容模式）</option>
+<option value="moonshot">Moonshot / Kimi</option>
+<option value="openai">OpenAI</option>
+<option value="ollama">本机 Ollama</option>
+<option value="custom">自定义</option>
+</select></label>
+<label class="ai-lb">接口地址（OpenAI 兼容 /v1）<input id="aibase" class="ai-fld" type="text" spellcheck="false" placeholder="https://api.deepseek.com/v1"></label>
+<label class="ai-lb">模型名称<input id="aimodel" class="ai-fld" type="text" spellcheck="false" placeholder="deepseek-chat"></label>
+<label class="ai-lb">API Key（本机 Ollama 可留空）<input id="aikey" class="ai-fld" type="password" spellcheck="false" placeholder="sk-..."></label>
+<label class="ai-lb">AI 网页（用于粘贴提示词）<input id="aisite" class="ai-fld" type="text" spellcheck="false" placeholder="https://chat.deepseek.com/"></label>
+</div>
+<div class="row ai-gap">
+<button type="button" class="b" id="aisavecfg">保存设置</button>
+<button type="button" class="b" id="aiclearcfg">清除设置</button>
+</div>
+<p class="small ai-gap">本机 Ollama 用 <code>http://127.0.0.1:11434/v1</code>；若被跨域拦截，可在 Mac 上设置 <code>OLLAMA_ORIGINS=*</code> 后重启 Ollama。多数云端大模型不允许从本地网页直连，遇到 CORS 报错请改用「复制 AI 提示词」。</p>
+</details>
+<div class="row ai-gap">
+<button type="button" class="b go" id="aiai">AI 深度分析</button>
+<button type="button" class="b" id="aicopy">复制 AI 提示词</button>
+<button type="button" class="b" id="aiopen">打开 AI 网页</button>
+<span class="small" id="aiapistat">未配置接口也能用「复制 AI 提示词」。</span>
+</div>
+</div>
+
+<div class="pane card" id="airesultcard" hidden>
+<p class="sh">三、分析结果</p>
+<div id="aiout"><div id="aianswer"></div><div id="ailocal"></div></div>
+</div>
+
+<p class="small">本地规则库覆盖 panic、Lilu / kext、签名校验、显卡屏蔽、Optimus、ACPI、OpenCore、下载与权限等 20 多类常见问题，只作排障提示，不是官方诊断。改动 EFI 前务必备份，并保留 -v。</p>
+</section>
+
 <section id="t-help" hidden>
 <h1>使用说明</h1>
-<p class="lede">1401 中文汉化版 · 对应官方 v2.9。本页可随时回来查看；本包只翻译界面文字，功能与官方完全一致。</p>
+<p class="lede">1401 中文汉化版 · 对应官方 v2.9。原有功能与官方一致，另新增「使用说明」与「AI 日志解析」两个汉化版专属页面；本页可随时回来查看。</p>
 
 <div class="pane card"><p class="sh">一、这是什么</p>
 <p>1401 是 NullMoth 官方提供的工具，用来在 OpenCore 黑苹果上安装、更新和移除 NVIDIA（NullMoth）驱动，适用 macOS 15.5 及以上（含 macOS 26 Tahoe）。</p>
@@ -289,10 +350,16 @@
 <div class="pane card"><p class="sh">九、出问题怎么办</p>
 <p class="todo"><ol>
 <li>先看「问题检查」页给出的规则说明与修复步骤。</li>
-<li>重启时保留 -v，观察启动日志定位失败点。</li>
+<li>重启时保留 -v，把启动日志贴进左侧「AI 日志解析」页，先看离线中文诊断。</li>
 <li>用「工具 · 挂载 EFI」把之前备份的 EFI 还原回去。</li>
 <li>启动菜单里的 1401: Remove NVIDIA driver 可一键移除驱动。</li>
 </ol></p></div>
+
+<div class="pane card"><p class="sh">十、AI 日志解析（汉化版新增）</p>
+<p>左侧栏「AI 日志解析」是汉化版额外加的排障助手，官方原版没有。把 -v 启动日志、panic / .ips 崩溃报告、OpenCore 日志或 1401 运行日志粘贴、拖入或选择文件，点「本地智能解析」即可得到中文结论：每条问题都附日志原文证据、原因解释与修复步骤，另有关键线索（boot-args、kext、版本、显卡相关行）。</p>
+<p><b>本地解析完全离线</b>，不联网、不上传，日志不会离开这台电脑。规则库覆盖 panic、Lilu / kext 加载失败、签名校验、显卡被屏蔽、Optimus / igpuproxy、ACPI、OpenCore 配置、下载与权限等 20 多类常见问题，结论只作排障参考。</p>
+<p>需要大模型通读时有两种方式：<b>方式 A</b> 在「接口设置」里填 OpenAI 兼容接口（DeepSeek / 通义千问 / Kimi / OpenAI / 本机 Ollama / 自定义）与自己的 API Key，点「AI 深度分析」；<b>方式 B（推荐，任何环境都能用）</b> 点「复制 AI 提示词」，再点「打开 AI 网页」粘贴进去。多数云端大模型不允许从本地网页直连（CORS），遇到报错请改用方式 B。密钥只保存在本机，点「清除设置」即可删除。</p>
+<p class="small">AI 提示词会自动带上本机检测信息与本地诊断摘要；日志过长时只截取开头、报错附近和结尾。改动 EFI 前仍要先备份，并保留 -v。</p></div>
 
 <p class="small">修改 EFI、安装第三方内核扩展有一定风险，务必先备份 EFI，一切后果自行承担。本汉化包为社区贡献，与 NullMoth 官方无隶属关系。</p>
 <p class="legal">© 2026 NullMoth Systems. NullMoth 和飞蛾标志是 NullMoth Systems 的商标。Required Notice: Copyright NullMoth Systems.</p>
@@ -302,4 +369,5 @@
 </div>
 </div>
 <script src="app.js"></script>
+<script src="ai_log.js"></script>
 </body></html>
