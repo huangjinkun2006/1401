@@ -855,7 +855,9 @@ final class App: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKUIDe
     var latest: (version: String, name: String, url: URL, sha: String, sig: String?)? = nil
     var latestApp: (version: String, name: String, url: URL, sha: String, sig: URL?)? = nil
     static func releaseAppVersion(_ name: String) -> String? {
-        guard let match = name.range(of: #"^1401-Mac-([0-9]+\.[0-9]+(?:\.[0-9]+)?)\.zip$"#, options: .regularExpression) else { return nil }
+        // zh-CN builds are versioned 2.9.0.N (upstream's last release is 2.9, so 2.9.1 would read as an official version
+        // that never existed) — allow any number of dot-separated parts, not just two or three.
+        guard let match = name.range(of: #"^1401-Mac-([0-9]+(?:\.[0-9]+)+)\.zip$"#, options: .regularExpression) else { return nil }
         return String(name[match].dropFirst("1401-Mac-".count).dropLast(".zip".count))
     }
     var appVersion: String { Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0" }

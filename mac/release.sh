@@ -17,14 +17,16 @@ if [ ! -f "$KEY" ]; then
 fi
 
 # 读取当前版本（build 之前；若没有则用 2.9 作为基线）
+# 版本号规则：官方最后一版是 2.9，所以汉化版用 2.9.0.N（N 从 1 递增），避免出现"官方 2.9.1"这种并不存在的版本号。
+#   2.9 -> 2.9.0.1；2.9.0.1 -> 2.9.0.2；2.9.0 -> 2.9.0.1
 CUR=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$APP/Contents/Info.plist" 2>/dev/null || echo "2.9")
 if [ -n "${1:-}" ]; then
   NEW="$1"
 else
-  # 注意：OFS 必须在改写字段前设好，否则 $NF=$NF+1 会用默认空格重建整串（"2.9.1" -> "2 9 2"）
-  NEW=$(echo "$CUR" | awk -F. 'BEGIN{OFS="."} { if (NF==2) { $3=1; print } else { $NF=$NF+1; print } }')
+  NEW=$(echo "$CUR" | awk -F. 'BEGIN{OFS="."} { if (NF==2) { $3=0; $4=1; print } else if (NF==3) { $4=1; print } else { $NF=$NF+1; print } }')
 fi
-BUILD="${2:-$NEW}"
+# CFBundleVersion 只需单调递增；用去掉点的数字串，2.9.0.1 -> 2901
+BUILD="${2:-$(echo "$NEW" | tr -d '.')}"
 echo "版本: $CUR -> $NEW  (build $BUILD)"
 
 # 用目标版本构建（build.sh 通过环境变量把版本写进 Info.plist）
