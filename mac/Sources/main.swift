@@ -46,6 +46,7 @@ func syncGet(_ url: URL, timeout: TimeInterval) -> Data? {
     let sem = DispatchSemaphore(value: 0)
     let config = URLSessionConfiguration.ephemeral
     config.timeoutIntervalForRequest = timeout
+    config.connectionProxyDictionary = ProxyConfig.current.connectionProxyDictionary
     let session = URLSession(configuration: config)
     var rq = URLRequest(url: url); rq.timeoutInterval = timeout
     session.dataTask(with: rq) { d, resp, _ in
@@ -389,7 +390,7 @@ func uploadReports(files: [URL], pendingFiles: [URL], in dir: URL, notes: String
         req.setValue(sha, forHTTPHeaderField: "X-Content-SHA256")
         let done = DispatchSemaphore(value: 0)
         let result = ReportUploadResult()
-        let task = URLSession.shared.dataTask(with: req) { data, response, error in
+        let task = ProxyConfig.session.dataTask(with: req) { data, response, error in
             result.finish(data: data, response: response, error: error, sha256: sha)
             done.signal()
         }
@@ -846,7 +847,11 @@ final class App: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKUIDe
     }
     var pendingDownload: (id: Int, plan: DownloadPlan)? = nil
     var runningSetup = false
-    lazy var downloadSession = URLSession(configuration: .default, delegate: self, delegateQueue: .main)
+    lazy var downloadSession: URLSession = {
+        let c = URLSessionConfiguration.default
+        c.connectionProxyDictionary = ProxyConfig.current.connectionProxyDictionary
+        return URLSession(configuration: c, delegate: self, delegateQueue: .main)
+    }()
     var latest: (version: String, name: String, url: URL, sha: String, sig: String?)? = nil
     var latestApp: (version: String, name: String, url: URL, sha: String, sig: URL?)? = nil
     static func releaseAppVersion(_ name: String) -> String? {
@@ -885,14 +890,14 @@ final class App: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKUIDe
         // an early install whose channels file cannot be read, gets /releases/latest
         guard UpdateChannel.isOn else { return checkRelease(UpdateChannel.latestURL, early: false) }
         var crq = URLRequest(url: UpdateChannel.channelsURL); crq.timeoutInterval = 15
-        URLSession.shared.dataTask(with: crq) { data, resp, err in
+        ProxyConfig.session.dataTask(with: crq) { data, resp, err in
             let doc = (err == nil && (resp as? HTTPURLResponse)?.statusCode == 200) ? data.flatMap { try? JSONSerialization.jsonObject(with: $0) } : nil
             self.checkRelease(UpdateChannel.releaseURL(early: true, channels: doc), early: true)
         }.resume()
     }
     func checkRelease(_ url: URL, early: Bool) {
         var rq = URLRequest(url: url); rq.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept"); rq.timeoutInterval = 30
-        URLSession.shared.dataTask(with: rq) { data, resp, err in
+        ProxyConfig.session.dataTask(with: rq) { data, resp, err in
             let fail: (String) -> Void = { self.send("upd", ["state": "error", "why": $0]) }
             guard err == nil, (resp as? HTTPURLResponse)?.statusCode == 200, let data,
                   let payload = try? JSONSerialization.jsonObject(with: data),
@@ -1108,7 +1113,7 @@ final class App: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKUIDe
         do { try FileManager.default.createDirectory(at: work, withIntermediateDirectories: true) } catch { return fail(error.localizedDescription) }
         send("appupd", ["state": "start", "version": l.version])
         func fetch(_ u: URL, mirror: URL?) {
-        URLSession.shared.downloadTask(with: u) { loc, resp, err in
+        ProxyConfig.session.downloadTask(with: u) { loc, resp, err in
             guard err == nil, (resp as? HTTPURLResponse)?.statusCode == 200, let loc else {
                 if let m = mirror { return fetch(m, mirror: nil) }
                 return fail("the download failed (\(err?.localizedDescription ?? "HTTP \((resp as? HTTPURLResponse)?.statusCode ?? 0)"))") }
