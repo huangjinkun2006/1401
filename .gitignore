@@ -14,4 +14,5 @@ out/
 loader/target/
 # release artifacts from mac/release.sh (upload to GitHub Release, never commit)
 mac/1401-Mac-*.zip*
+mac/1401-Mac-*.dmg
 mac/SHA256SUMS.txt
