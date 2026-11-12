@@ -859,6 +859,9 @@ final class App: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKUIDe
         return String(name[match].dropFirst("1401-Mac-".count).dropLast(".zip".count))
     }
     var appVersion: String { Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0" }
+    // Where this zh-CN fork checks for its own app updates (our Release, signed with our key) — independent of the
+    // official NullMoth driver release below.
+    static let appUpdateURL = URL(string: "https://api.github.com/repos/huangjinkun2006/1401/releases/latest")!
     static func releaseDriverVersion(_ name: String) -> String? {
         guard let match = name.range(of: #"^nullmoth-nvidia-([0-9]+\.[0-9]+(?:\.[0-9]+)?)\.tar\.gz$"#, options: .regularExpression) else { return nil }
         return String(name[match].dropFirst("nullmoth-nvidia-".count).dropLast(".tar.gz".count))
@@ -886,6 +889,9 @@ final class App: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKUIDe
     }
     func installedDriverVersion() -> String { App.recordedDriverVersion() }
     func checkUpdate() {
+        // The zh-CN fork's own app update is fetched independently from our Release (signed with our key), so a stock
+        // NullMoth release never silently overwrites the localized build. Driver updates still come from NullMoth below.
+        checkAppUpdate()
         // early updates first ask the site's channels file which pre-release (if any) is offered; everyone else, and
         // an early install whose channels file cannot be read, gets /releases/latest
         guard UpdateChannel.isOn else { return checkRelease(UpdateChannel.latestURL, early: false) }
@@ -906,6 +912,37 @@ final class App: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKUIDe
                 if let m = self.mirrorRelease() { return self.processRelease(m, early: early) }
                 return fail("could not reach the release list (\(err?.localizedDescription ?? "HTTP \((resp as? HTTPURLResponse)?.statusCode ?? 0)"))") }
             self.processRelease(j, early: early)
+        }.resume()
+    }
+    /// App auto-update for the zh-CN fork: read our own Release (huangjinkun2006/1401), find the 1401-Mac-*.zip, its
+    /// SHA256SUMS.txt and <zip>.bsig, and remember it as latestApp. Verified against our release key, not NullMoth's.
+    func checkAppUpdate() {
+        var rq = URLRequest(url: App.appUpdateURL); rq.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept"); rq.timeoutInterval = 30
+        ProxyConfig.session.dataTask(with: rq) { data, resp, err in
+            guard err == nil, (resp as? HTTPURLResponse)?.statusCode == 200, let data,
+                  let j = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
+                  j["tag_name"] is String, j["draft"] as? Bool != true,
+                  let assets = j["assets"] as? [[String: Any]] else { return }
+            var appz: (String, String, URL)? = nil; var sums: URL? = nil; var sig: URL? = nil
+            for a in assets {
+                guard let n = a["name"] as? String, let u = (a["browser_download_url"] as? String).flatMap(URL.init(string:)), u.scheme == "https" else { continue }
+                if n == "SHA256SUMS.txt" { sums = u }
+                if let v = App.releaseAppVersion(n), appz == nil || App.newer(v, than: appz!.0) { appz = (v, n, u) }
+                if let z = appz, n == z.1 + ".bsig" { sig = u }
+            }
+            guard let appz, let sums else { return }
+            let zipName = appz.1, sigURL = sig
+            DispatchQueue.global(qos: .userInitiated).async {
+                guard let sd = syncGetMirrored(sums, timeout: 30), let txt = String(data: sd, encoding: .utf8) else { return }
+                let sha = txt.split(separator: "\n").compactMap { l -> String? in
+                    let f = l.split(whereSeparator: { $0 == " " || $0 == "\t" }); return f.count >= 2 && f.last.map(String.init) == zipName ? String(f[0]).lowercased() : nil }.first ?? ""
+                guard sha.count == 64 else { return }
+                DispatchQueue.main.async {
+                    self.latestApp = (appz.0, appz.1, appz.2, sha, sigURL)
+                    self.send("appupd", ["state": "checked", "latest": appz.0, "installed": self.appVersion,
+                                         "available": App.newer(appz.0, than: self.appVersion)])
+                }
+            }
         }.resume()
     }
     /// The release list when GitHub's API does not answer: the site's channels file names the stable version, and the
@@ -1127,7 +1164,7 @@ final class App: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKUIDe
             guard let sigData = syncGetMirrored(sigURL, timeout: 30), let sigText = String(data: sigData, encoding: .utf8) else {
                 return fail("could not download the update's signature, so it was not installed") }
             guard let zipData = try? Data(contentsOf: zip),
-                  ReleaseSignature.verifyBound(data: zipData, product: "1401-mac", version: l.version, signatureBase64: sigText) else {
+                  ReleaseSignature.verifyBound(data: zipData, product: "1401-mac", version: l.version, signatureBase64: sigText, publicKeyBase64: ReleaseSignature.ourPublicKeyBase64) else {
                 return fail("the update's signature is not from NullMoth, so it was not installed") }
             _ = sh("/usr/bin/ditto", ["-x", "-k", zip.path, out.path])
             guard let new = (try? FileManager.default.contentsOfDirectory(at: out, includingPropertiesForKeys: nil))?.first(where: { $0.pathExtension == "app" }),

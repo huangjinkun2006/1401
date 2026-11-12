@@ -12,3 +12,6 @@ out/
 # dev environment + Rust build output
 .venv/
 loader/target/
+# release artifacts from mac/release.sh (upload to GitHub Release, never commit)
+mac/1401-Mac-*.zip*
+mac/SHA256SUMS.txt

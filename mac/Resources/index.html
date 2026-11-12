@@ -51,7 +51,7 @@
 <p class="small"><a href="#" id="logs">打开日志文件夹</a></p></div>
 
 <div class="pane card"><p class="sh">更新</p>
-<p><b>驱动更新</b>来自 NullMoth 官方：按上面的流程下载、对照官方 SHA-256 校验后安装，安装前会先备份 OpenCore 配置。<b>应用更新</b>由本汉化版维护者发布——点「查看汉化版更新」打开作者的 Release 页手动下载对应版本的汉化包；本汉化版<b>已停用官方应用自更新</b>，不会再被覆盖回英文。</p>
+<p><b>驱动更新</b>来自 NullMoth 官方：按上面的流程下载、对照官方 SHA-256 校验后安装，安装前会先备份 OpenCore 配置。<b>应用更新</b>由本汉化版维护者发布，并接入了自动更新：点「检查驱动更新」会一并检查汉化版 Release，有新版时「更新应用」按钮会自动出现并走维护者签名校验；也可点「查看汉化版更新」手动打开 Release 页。驱动更新仍走 NullMoth 官方，互不影响。</p>
 <p class="row"><button type="button" class="b go" id="updchk">检查驱动更新</button> <button type="button" class="b go" id="zhupd">查看汉化版更新</button> <button type="button" class="b go" id="upddrv" hidden>更新驱动</button> <button type="button" class="b go" id="updapp" hidden>更新应用</button> <span id="updr"></span></p>
 <p><b>抢先更新。</b> 新驱动会先推送给开启此选项的用户，等他们的机器确认没有问题后再向所有人开放。开启后可提前一两天拿到新版本，并在出现异常时提交日志。</p>
 <p class="row"><button type="button" class="b" id="earlyon">开启抢先更新</button> <button type="button" class="b" id="earlyoff" hidden>关闭抢先更新</button> <span id="earlyr"></span></p></div>
@@ -344,7 +344,7 @@
 </ul></div>
 
 <div class="pane card"><p class="sh">八、汉化版专属注意事项（重要）</p>
-<p><b>应用更新已经指向本汉化版的发布页</b>：点「本机」页的「查看汉化版更新」，会打开 <code>https://github.com/huangjinkun2006/1401/releases/latest</code>。官方应用自更新已停用，界面不会被覆盖回英文；<b>驱动更新仍走 NullMoth 官方</b>（驱动包带官方签名），「检查驱动更新 / 更新驱动」可以照常使用。</p>
+<p><b>应用更新已接入本汉化版维护者的自动更新</b>：点「本机」页的「检查驱动更新」会一并检查维护者 Release，有汉化新版时「更新应用」按钮出现并自动下载、用维护者密钥校验；也可点「查看汉化版更新」打开 <code>https://github.com/huangjinkun2006/1401/releases/latest</code> 手动下载。<b>驱动更新仍走 NullMoth 官方</b>（驱动包带官方签名），「检查驱动更新 / 更新驱动」照常使用，两者互不干扰。</p>
 <p class="small">若按仓库资源文件自行汉化，设置窗口标题栏仍是英文 Driver settings（标题写在可执行文件里），不影响使用。</p>
 <p><b>关于「该命令退出时状态为非零 (97)」</b>：1401 在执行需要管理员权限的操作前（发送日志、安装驱动、挂载 EFI、检查等），会用主程序内嵌的 SHA-256 清单逐个校验 <code>Contents/Resources</code> 里的文件，任一哈希不符就中止并退出 97。汉化版已经把这张清单同步成汉化后资源的哈希，所以提权功能可正常使用；但如果你自行替换或修改了这些资源文件，必须重新运行仓库里的 <code>zh-CN/tools/sync_bundle_hashes.py</code> 并重新签名，否则所有提权操作都会以 97 失败。官方原版不受影响，驱动本体与安装脚本也从未被改动。</p></div>
 

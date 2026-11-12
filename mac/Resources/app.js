@@ -307,17 +307,19 @@ const NM = {
           : data.newer ? `${have}最新${kind}${esc(data.latest)} —— 可以更新。` : `${have}你的驱动已是最新（${esc(data.latest)}）。`;
         $("upddrv").hidden = !data.newer;
         $("upddrv").disabled = !data.newer;
-        // 汉化版：应用更新改由维护者的 Release 提供，绝不触发官方 app 自更新（会把界面覆盖回英文）
-        $("updapp").hidden = true;
-        $("updapp").disabled = true;
+        // 应用更新（汉化版）来自本维护者的 Release，已随本次检查一并自动查询；可点「查看汉化版更新」手动打开页面
         $("zhupd").hidden = false;
-        $("updr").innerHTML += ' <span class="good">应用更新请点「查看汉化版更新」，由本汉化版维护者发布。</span>';
+        $("updr").innerHTML += ' <span class="good">应用更新来自本汉化版维护者的 Release（已自动检查）。</span>';
       }
     }
     if (event === "appupd") {
-      if (data.state === "error") { $("updapp").disabled = false; $("updr").innerHTML = `<span class="bad">${esc(data.why)}</span>`; }
-      if (data.state === "start") $("updr").textContent = `正在下载 1401 ${data.version}...`;
-      if (data.state === "restarting") $("updr").textContent = `1401 ${data.version} 已校验 —— 正在重启进入新版本...`;
+      if (data.state === "checked") {
+        if (data.available) { $("updapp").hidden = false; $("updapp").disabled = false; $("updr").innerHTML = `<span class="good">发现汉化版 ${esc(data.latest)}，可更新（当前 ${esc(data.installed)}）。</span>`; }
+        else { $("updapp").hidden = true; $("updapp").disabled = true; }
+      }
+      if (data.state === "error") { $("updapp").hidden = true; $("updapp").disabled = true; $("updr").innerHTML = `<span class="bad">无法检查汉化版更新：${esc(data.why)}。可点「查看汉化版更新」手动下载。</span>`; }
+      if (data.state === "start") { $("updapp").disabled = true; $("updr").textContent = `正在下载 1401 ${data.version}...`; }
+      if (data.state === "restarting") { $("updapp").disabled = true; $("updr").textContent = `1401 ${data.version} 已校验 —— 正在重启进入新版本...`; }
     }
     if (event === "run") {
       const busy = data.state === "start";
@@ -363,7 +365,7 @@ $("updc").onclick = () => post({ act: "osupdate", cancel: true, efi: efi() });
 $("updchk").onclick = () => { $("updr").textContent = "检查中..."; post({ act: "checkUpdate" }); };
 const ZH_RELEASES = "https://github.com/huangjinkun2006/1401/releases/latest";
 $("zhupd").onclick = () => post({ act: "open", url: ZH_RELEASES });
-$("updapp").onclick = () => post({ act: "open", url: ZH_RELEASES });
+$("updapp").onclick = () => { $("updapp").disabled = true; post({ act: "updateApp" }); };
 $("upddrv").onclick = () => { S.driverUpdate = true; $("upddrv").disabled = true; $("updr").textContent = "正在下载最新驱动..."; post({ act: "updateDriver", efi: efi() }); };
 $("ocg").onclick = (e) => { e.preventDefault(); post({ act: "open", url: "https://dortania.github.io/OpenCore-Install-Guide/" }); };
 $("dry").onclick = () => post({ act: "run", mode: "dry", pkg: S.pkg, efi: efi() });
