@@ -21,7 +21,8 @@ CUR=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$APP/Conten
 if [ -n "${1:-}" ]; then
   NEW="$1"
 else
-  NEW=$(echo "$CUR" | awk -F. '{ if (NF==2) { print $1"."$2".1" } else { $NF=$NF+1; OFS="."; print } }')
+  # 注意：OFS 必须在改写字段前设好，否则 $NF=$NF+1 会用默认空格重建整串（"2.9.1" -> "2 9 2"）
+  NEW=$(echo "$CUR" | awk -F. 'BEGIN{OFS="."} { if (NF==2) { $3=1; print } else { $NF=$NF+1; print } }')
 fi
 BUILD="${2:-$NEW}"
 echo "版本: $CUR -> $NEW  (build $BUILD)"

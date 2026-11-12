@@ -1141,10 +1141,10 @@ final class App: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKUIDe
     // Users no longer download and reinstall the app by hand for every release.
     func updateApp() {
         let fail: (String) -> Void = { self.send("appupd", ["state": "error", "why": $0]) }
-        guard let l = latestApp else { return fail("check for updates first") }
+        guard let l = latestApp else { return fail("请先检查更新。") }
         let me = Bundle.main.bundleURL, parent = me.deletingLastPathComponent()
         guard me.pathExtension == "app", FileManager.default.isWritableFile(atPath: parent.path) else {
-            return fail("1401 cannot replace itself in \(parent.path); move it to Applications, or download the new version from the site") }
+            return fail("1401 无法在 \(parent.path) 里替换自身；请把 app 放到「应用程序」文件夹，或从发布页手动下载新版本。") }
         let work = support.appendingPathComponent("app-update/\(l.version)")
         try? FileManager.default.removeItem(at: work)
         do { try FileManager.default.createDirectory(at: work, withIntermediateDirectories: true) } catch { return fail(error.localizedDescription) }
@@ -1153,29 +1153,29 @@ final class App: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKUIDe
         ProxyConfig.session.downloadTask(with: u) { loc, resp, err in
             guard err == nil, (resp as? HTTPURLResponse)?.statusCode == 200, let loc else {
                 if let m = mirror { return fetch(m, mirror: nil) }
-                return fail("the download failed (\(err?.localizedDescription ?? "HTTP \((resp as? HTTPURLResponse)?.statusCode ?? 0)"))") }
-            guard sha256(loc) == l.sha else { return fail("the download does not match its SHA-256, so it was thrown away") }
+                return fail("下载失败（\(err?.localizedDescription ?? "HTTP \((resp as? HTTPURLResponse)?.statusCode ?? 0)")）") }
+            guard sha256(loc) == l.sha else { return fail("下载内容与 SHA-256 不符，已丢弃。") }
             let zip = work.appendingPathComponent(l.name), out = work.appendingPathComponent("unpacked")
             do { try FileManager.default.moveItem(at: loc, to: zip) } catch { return fail(error.localizedDescription) }
             // The SHA-256 above only proves the download matches what the release page lists; an attacker who controls
             // that page controls both. Refuse to unpack unless a detached Ed25519 signature over the exact zip bytes
             // verifies against the compiled-in NullMoth release key (R2).
-            guard let sigURL = l.sig else { return fail("this release is not signed by NullMoth, so it was not installed") }
+            guard let sigURL = l.sig else { return fail("该发布包没有附带签名，已取消安装。") }
             guard let sigData = syncGetMirrored(sigURL, timeout: 30), let sigText = String(data: sigData, encoding: .utf8) else {
-                return fail("could not download the update's signature, so it was not installed") }
+                return fail("无法下载更新签名，已取消安装。") }
             guard let zipData = try? Data(contentsOf: zip),
                   ReleaseSignature.verifyBound(data: zipData, product: "1401-mac", version: l.version, signatureBase64: sigText, publicKeyBase64: ReleaseSignature.ourPublicKeyBase64) else {
-                return fail("the update's signature is not from NullMoth, so it was not installed") }
+                return fail("更新包的签名不是本汉化版维护者的密钥，已取消安装。") }
             _ = sh("/usr/bin/ditto", ["-x", "-k", zip.path, out.path])
             guard let new = (try? FileManager.default.contentsOfDirectory(at: out, includingPropertiesForKeys: nil))?.first(where: { $0.pathExtension == "app" }),
                   let info = NSDictionary(contentsOf: new.appendingPathComponent("Contents/Info.plist")),
                   info["CFBundleIdentifier"] as? String == Bundle.main.bundleIdentifier,
-                  info["CFBundleShortVersionString"] as? String == l.version else { return fail("the download is not the 1401 \(l.version) app") }
+                  info["CFBundleShortVersionString"] as? String == l.version else { return fail("下载内容不是 1401 \(l.version) 应用。") }
             let v = Process(); v.executableURL = URL(fileURLWithPath: "/usr/bin/codesign"); v.arguments = ["--verify", "--deep", new.path]
             v.standardOutput = Pipe(); v.standardError = Pipe()
-            guard (try? v.run()) != nil else { return fail("could not check the new app's signature") }
+            guard (try? v.run()) != nil else { return fail("无法校验新版本的签名。") }
             v.waitUntilExit()
-            guard v.terminationStatus == 0 else { return fail("the new app's signature does not verify") }
+            guard v.terminationStatus == 0 else { return fail("新版本的签名校验未通过，已取消安装。") }
             let backup = support.appendingPathComponent("app-update/previous.app"), swap = work.appendingPathComponent("swap.sh")
             let script = """
             #!/bin/bash
@@ -1189,7 +1189,7 @@ final class App: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKUIDe
             let p = Process(); p.executableURL = URL(fileURLWithPath: "/bin/bash")
             p.arguments = [swap.path, String(getpid()), me.path, new.path, backup.path]
             p.standardInput = FileHandle.nullDevice; p.standardOutput = FileHandle.nullDevice; p.standardError = FileHandle.nullDevice
-            guard (try? p.run()) != nil else { return fail("could not start the update") }
+            guard (try? p.run()) != nil else { return fail("无法启动更新。") }
             self.send("appupd", ["state": "restarting", "version": l.version])
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) { NSApp.terminate(nil) }
         }.resume()
