@@ -498,6 +498,7 @@ final class App: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKUIDe
         case "scan": DispatchQueue.global().async { self.send("scan", self.scan()) }
         case "download": download()
         case "checkUpdate": checkUpdate()
+        case "checkAppUpdate": checkAppUpdate(manual: true)
         case "updateDriver": updateDriver(efi: b["efi"] as? String ?? "auto")
         case "updateApp": updateApp()
         case "run":
@@ -918,13 +919,16 @@ final class App: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKUIDe
     }
     /// App auto-update for the zh-CN fork: read our own Release (huangjinkun2006/1401), find the 1401-Mac-*.zip, its
     /// SHA256SUMS.txt and <zip>.bsig, and remember it as latestApp. Verified against our release key, not NullMoth's.
-    func checkAppUpdate() {
+    /// `manual` is a click on 「检查汉化版更新」: explain why nothing came back instead of failing silently.
+    func checkAppUpdate(manual: Bool = false) {
+        let why: (String) -> Void = { m in if manual { self.send("appupd", ["state": "error", "why": m]) } }
         var rq = URLRequest(url: App.appUpdateURL); rq.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept"); rq.timeoutInterval = 30
         ProxyConfig.session.dataTask(with: rq) { data, resp, err in
             guard err == nil, (resp as? HTTPURLResponse)?.statusCode == 200, let data,
                   let j = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
                   j["tag_name"] is String, j["draft"] as? Bool != true,
-                  let assets = j["assets"] as? [[String: Any]] else { return }
+                  let assets = j["assets"] as? [[String: Any]] else {
+                return why("读不到本仓库的 Release 列表（\(err?.localizedDescription ?? "HTTP \((resp as? HTTPURLResponse)?.statusCode ?? 0)")）") }
             var appz: (String, String, URL)? = nil; var sums: URL? = nil; var sig: URL? = nil
             for a in assets {
                 guard let n = a["name"] as? String, let u = (a["browser_download_url"] as? String).flatMap(URL.init(string:)), u.scheme == "https" else { continue }
@@ -932,13 +936,13 @@ final class App: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKUIDe
                 if let v = App.releaseAppVersion(n), appz == nil || App.newer(v, than: appz!.0) { appz = (v, n, u) }
                 if let z = appz, n == z.1 + ".bsig" { sig = u }
             }
-            guard let appz, let sums else { return }
+            guard let appz, let sums else { return why("最新的 Release 里没有 1401-Mac-<版本>.zip 或 SHA256SUMS.txt") }
             let zipName = appz.1, sigURL = sig
             DispatchQueue.global(qos: .userInitiated).async {
-                guard let sd = syncGetMirrored(sums, timeout: 30), let txt = String(data: sd, encoding: .utf8) else { return }
+                guard let sd = syncGetMirrored(sums, timeout: 30), let txt = String(data: sd, encoding: .utf8) else { return why("下载 SHA256SUMS.txt 失败") }
                 let sha = txt.split(separator: "\n").compactMap { l -> String? in
                     let f = l.split(whereSeparator: { $0 == " " || $0 == "\t" }); return f.count >= 2 && f.last.map(String.init) == zipName ? String(f[0]).lowercased() : nil }.first ?? ""
-                guard sha.count == 64 else { return }
+                guard sha.count == 64 else { return why("SHA256SUMS.txt 里没有 \(zipName) 的校验值") }
                 DispatchQueue.main.async {
                     self.latestApp = (appz.0, appz.1, appz.2, sha, sigURL)
                     self.send("appupd", ["state": "checked", "latest": appz.0, "installed": self.appVersion,
