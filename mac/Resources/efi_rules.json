@@ -1,0 +1,848 @@
+{
+ "schema": "nullmoth-efi-rules/1",
+ "about": "针对特定机型，一份可用的 OpenCore 配置必须包含什么。Windows 构建器用它构建 U 盘，1401 用它检查已安装的 EFI。",
+ "rules": [
+  {
+   "id": "tahoe-weg-amd",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {
+    "macos_min": "25.0.0",
+    "amd_dgpu": true,
+    "intel_igpu": false
+   },
+   "when": [
+    {
+     "kext": "WhateverGreen.kext",
+     "enabled": true
+    }
+   ],
+   "expect": [
+    {
+     "kext": "WhateverGreen.kext",
+     "enabled": false
+    }
+   ],
+   "restart": true,
+   "title": "WhateverGreen 可能导致 macOS 26 在你的 AMD 显卡上崩溃",
+   "what": "在 macOS 26 Tahoe 上，WhateverGreen 的 AMD 显示补丁可能在启动时引发恐慌。有 AMD 卡且无 Intel 核显的机器可以不开它。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Kernel > Add 中，把 WhateverGreen.kext 的 Enabled 设为 false。",
+    "如果 boot-args 里有 agdpmod=pikera，请删除它，并在 Kernel > Patch 下改用 AGDP board-id 补丁。",
+    "重启。"
+   ],
+   "source": "Dortania Tahoe page"
+  },
+  {
+   "id": "tahoe-intel-bt",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {
+    "macos_min": "25.0.0"
+   },
+   "when": [
+    {
+     "kext": "IntelBluetoothFirmware.kext",
+     "enabled": true
+    }
+   ],
+   "expect": [
+    {
+     "boot_arg": "-ibtcompatbeta",
+     "present": true
+    }
+   ],
+   "restart": true,
+   "title": "Intel 蓝牙在 macOS 26 上需要一个引导设置",
+   "what": "Intel 蓝牙驱动只有在 boot-args 含 -ibtcompatbeta 时才会在 macOS 26 Tahoe 上加载。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 NVRAM > Add > 7C436110-AB2A-4BBB-A880-FE41995C9F82 下，把 -ibtcompatbeta 加入 boot-args。",
+    "重启。"
+   ],
+   "source": "Dortania Tahoe page"
+  },
+  {
+   "id": "tahoe-sbvmm",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {
+    "macos_min": "25.0.0"
+   },
+   "when": [
+    {
+     "kext": "RestrictEvents.kext",
+     "enabled": true
+    }
+   ],
+   "expect": [
+    {
+     "boot_arg_item": [
+      "revpatch",
+      "sbvmm"
+     ]
+    }
+   ],
+   "restart": true,
+   "title": "macOS 26 更新可能停在禁止符号处",
+   "what": "macOS 26 在启动和更新时会校验 Mac 型号。当 revpatch 包含 sbvmm 时，RestrictEvents 会替它应答该校验。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 boot-args 中加入 revpatch=sbvmm（或在已有的 revpatch= 后追加 ,sbvmm）。",
+    "重启。"
+   ],
+   "source": "the same bypass OCLP applies on unsupported Macs"
+  },
+  {
+   "id": "arrow-lake-ctr",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {
+    "cpu_class": [
+     "arrow_lake"
+    ],
+    "laptop": false
+   },
+   "expect": [
+    {
+     "kext": "CpuTopologyRebuild.kext",
+     "enabled": false
+    },
+    {
+     "boot_arg_prefix": "ctrsmt",
+     "present": false
+    }
+   ],
+   "restart": true,
+   "title": "CpuTopologyRebuild 会让桌面版 Arrow Lake 安装器卡死",
+   "what": "加载 CpuTopologyRebuild 后，Core Ultra 200 台式机的安装器在「PCI configuration end」之后立即卡死。一台 Core Ultra 5 225F 上成功安装并运行 macOS 15 的配置没有加载它。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Kernel > Add 中，把 CpuTopologyRebuild.kext 的 Enabled 设为 false。",
+    "从 boot-args 中移除任何 ctrsmt 选项。",
+    "重启。"
+   ],
+   "source": "a Core Ultra 5 225F that runs macOS 15"
+  },
+  {
+   "id": "core-ultra-drop-dmar",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {
+    "cpu_class": [
+     "core_ultra"
+    ],
+    "fact_absent": [
+     "firmware_no_dmar"
+    ]
+   },
+   "match_why": "A Mac whose firmware already hands macOS no DMAR table (VT-d off in the BIOS) needs nothing here: the Core Ultra 5 225F that runs macOS 26 has no DMAR in its firmware tables and no ACPI > Delete entry. The Mac app reads the live ACPI tables and sets firmware_no_dmar.",
+   "expect": [
+    {
+     "acpi_delete": "DMAR"
+    }
+   ],
+   "restart": true,
+   "title": "Core Ultra 机器在 VT-d 开启时无法进入 macOS",
+   "what": "所有成功进入桌面的 Core Ultra 机器都关闭了 VT-d。在 OpenCore 中丢弃 VT-d 的 DMAR 表对 macOS 效果相同，且在 BIOS 隐藏开关时也能用。Windows 和 Linux 保留 VT-d。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 ACPI > Delete 下添加一条：TableSignature 为 DMAR，All 为 true，Enabled 为 true。",
+    "或在 BIOS 中关闭 VT-d（有时在超频页面）。",
+    "重启。"
+   ],
+   "source": "1401 #10, #11 and chat reports, 245KF to 290HX"
+  },
+  {
+   "id": "core-ultra-iomapper",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {
+    "cpu_class": [
+     "core_ultra"
+    ]
+   },
+   "expect": [
+    {
+     "path": "Kernel.Quirks.DisableIoMapper",
+     "eq": true
+    }
+   ],
+   "restart": true,
+   "title": "Core Ultra 上必须阻止 macOS 使用 VT-d",
+   "what": "DisableIoMapper 会阻止 macOS 使用 VT-d，而 Core Ultra 机器需要这样才能启动。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Kernel > Quirks 中，把 DisableIoMapper 设为 true。",
+    "重启。"
+   ],
+   "source": "1401 #10, #11"
+  },
+  {
+   "id": "hybrid-intel-devmmio",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {
+    "cpu_class": [
+     "intel_hybrid"
+    ],
+    "laptop": true
+   },
+   "expect": [
+    {
+     "path": "Booter.Quirks.DevirtualiseMmio",
+     "eq": false
+    }
+   ],
+   "restart": true,
+   "title": "12 代及更新的 Intel 笔记本在 DevirtualiseMmio 开启时停在 EXITBS:START",
+   "what": "在带性能核与能效核的 Intel 笔记本上，DevirtualiseMmio 开启时启动可能在 macOS 起来之前出错。已知能在这类 CPU 上跑 macOS 的 7 台公开笔记本配置中有 6 台关闭了它。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Booter > Quirks 中，把 DevirtualiseMmio 设为 false。",
+    "在 BIOS 中关闭 VT-d；如果仍停在 EXITBS:START，也一并关闭超线程。",
+    "重启。"
+   ],
+   "source": "1401 #6 (13650HX: type 14 fault with it on); public laptop EFIs on 12th to 14th gen and Arrow Lake"
+  },
+  {
+   "id": "arrow-lake-desktop-devmmio",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {
+    "cpu_class": [
+     "arrow_lake"
+    ],
+    "laptop": false
+   },
+   "expect": [
+    {
+     "path": "Booter.Quirks.DevirtualiseMmio",
+     "eq": true
+    }
+   ],
+   "restart": true,
+   "title": "Core Ultra 200 台式机需要开启 DevirtualiseMmio 才能启动",
+   "what": "一台 Core Ultra 5 225F 台式机在 DevirtualiseMmio 开启时运行 macOS 26；据我们的报告，Arrow Lake 台式机只有开启它才能进到安装器（开启 20 台中 2 台成功，关闭 11 台中 0 台）。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Booter > Quirks 中，把 DevirtualiseMmio 设为 true。",
+    "确认 BIOS 中 VT-d 已关闭。",
+    "重启。"
+   ],
+   "source": "a Core Ultra 5 225F that runs macOS 26; 1401 stick reports"
+  },
+  {
+   "id": "keep-boot-args",
+   "scope": [
+    "stick"
+   ],
+   "scope_why": "Installer stick only. The Mac app's setup (nullmoth-setup.sh) adds boot-args to NVRAM Delete on the EFI a Mac starts from, on purpose, so OpenCore rewrites the driver's boot flags every start; of 196 stick configs uploaded 10-20 to 10-25 that delete boot-args, 180 carry 1401's own logging setting and 154 the driver's boot-args, so they are 1401 sticks changed after the build.",
+   "match": {},
+   "expect": [
+    {
+     "list_lacks": [
+      "NVRAM.Delete.7C436110-AB2A-4BBB-A880-FE41995C9F82",
+      "boot-args"
+     ]
+    }
+   ],
+   "restart": false,
+   "title": "这份 EFI 可能会抹掉已安装系统的引导设置",
+   "what": "如果 NVRAM > Delete 下有 boot-args，从这份 EFI 启动一次就会覆盖已安装 macOS 需要的引导标志，之后系统可能拒绝启动。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 NVRAM > Delete > 7C436110-AB2A-4BBB-A880-FE41995C9F82 下，删除 boot-args。"
+   ],
+   "source": "a user whose -no_compat_check was wiped by the stick"
+  },
+  {
+   "id": "boot-logs-on-stick",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {},
+   "expect": [
+    {
+     "path": "Misc.Debug.Target",
+     "bits": 65
+    },
+    {
+     "path": "Misc.Debug.AppleDebug",
+     "eq": true
+    },
+    {
+     "path": "Misc.Debug.ApplePanic",
+     "eq": true
+    }
+   ],
+   "restart": false,
+   "title": "启动失败时不会留下任何日志",
+   "what": "开启文件日志后，OpenCore 会把日志和 macOS 恐慌记录保存到 EFI 分区，1401 就能告诉你启动失败的原因，而不是让你拍屏幕。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Misc > Debug 下，给 Target 加上 65（开启日志并写入文件）。",
+    "把 AppleDebug 和 ApplePanic 设为 true。"
+   ],
+   "source": "OpenCore Configuration, Misc > Debug"
+  },
+  {
+   "id": "show-installer-entry",
+   "scope": [
+    "stick"
+   ],
+   "match": {},
+   "expect": [
+    {
+     "path": "Misc.Boot.HideAuxiliary",
+     "eq": false
+    }
+   ],
+   "restart": false,
+   "title": "macOS 安装器在启动菜单中被隐藏了",
+   "what": "安装器是一个辅助（auxiliary）启动项，OpenCore 用 HideAuxiliary 把它藏起来了。于是启动菜单里只有 Windows。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Misc > Boot 中，把 HideAuxiliary 设为 false。"
+   ],
+   "source": "552 uploaded configs had it on; Dortania installer guide"
+  },
+  {
+   "id": "show-picker",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {},
+   "expect": [
+    {
+     "path": "Misc.Boot.ShowPicker",
+     "eq": true
+    }
+   ],
+   "restart": false,
+   "title": "启动菜单从不出现",
+   "what": "没有启动菜单你就无法选择安装器，也无法在驱动弄挂桌面时选择「Remove NVIDIA driver」项。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Misc > Boot 中，把 ShowPicker 设为 true。"
+   ],
+   "source": "chat: \"remove nvidia driver doesnt exist even when i press space\""
+  },
+  {
+   "id": "picker-lists-tools",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {},
+   "expect": [
+    {
+     "path": "Misc.Boot.PickerMode",
+     "ne": "Apple",
+     "fix": "Builtin"
+    }
+   ],
+   "restart": false,
+   "title": "启动菜单无法显示「卸载驱动」入口",
+   "what": "苹果样式的启动菜单只列出系统，从不列出 OpenCore 工具，所以驱动的 Remove 入口无法在其中出现。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Misc > Boot 中，把 PickerMode 设为 Builtin（或 External）。"
+   ],
+   "source": "chat: \"remove nvidia driver doesnt exist even when i press space\""
+  },
+  {
+   "id": "expose-boot-path",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {},
+   "expect": [
+    {
+     "path": "Misc.Security.ExposeSensitiveData",
+     "bits": 1,
+     "default": 6
+    }
+   ],
+   "restart": true,
+   "title": "1401 无法判断你的 Mac 从哪个 EFI 启动",
+   "what": "只有当 ExposeSensitiveData 包含 1 时，OpenCore 才会告知它从哪个分区启动。它只分享启动路径，不包含序列号。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Misc > Security 下，给 ExposeSensitiveData 加上 1（6 变成 7）。",
+    "重启。"
+   ],
+   "source": "the Mac app stopped with one OpenCore partition in sight"
+  },
+  {
+   "id": "dedupe-add",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {},
+   "expect": [
+    {
+     "check": "no-duplicate-add"
+    }
+   ],
+   "restart": false,
+   "title": "同一个文件在 config.plist 中被列了两次",
+   "what": "OpenCore 的校验器会拒绝把同一个 SSDT 或 kext 列两次的配置。第二份从来没有起过作用。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 ACPI > Add 和 Kernel > Add 中，删除重复列出文件的第二条。"
+   ],
+   "source": "ocvalidate"
+  },
+  {
+   "id": "kext-conflict-usb",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {},
+   "when": [
+    {
+     "kext": "USBToolBox.kext",
+     "enabled": true
+    },
+    {
+     "kext": "USBInjectAll.kext",
+     "enabled": true
+    }
+   ],
+   "expect": [
+    {
+     "kext": "USBInjectAll.kext",
+     "enabled": false
+    }
+   ],
+   "restart": true,
+   "title": "USBInjectAll 和 USBToolBox 同时开启",
+   "what": "两个 kext 都映射 USB 端口，同时开启的配置会在启动时以「element modified after free」崩溃，有时发生在 NVIDIA 驱动加载之前。应保留的是带 UTBMap.kext 的 USBToolBox。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Kernel > Add 中，把 USBInjectAll.kext 的 Enabled 设为 false。",
+    "重启。"
+   ],
+   "source": "21 kernel panics 'element modified after free'; all 11 with a config had this pair or the next one"
+  },
+  {
+   "id": "kext-conflict-mausi",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {},
+   "when": [
+    {
+     "kext": "IntelMausi.kext",
+     "enabled": true
+    },
+    {
+     "kext": "IntelSnowMausi.kext",
+     "enabled": true
+    }
+   ],
+   "expect": [
+    {
+     "kext": "IntelSnowMausi.kext",
+     "enabled": false
+    }
+   ],
+   "restart": true,
+   "title": "IntelMausi 和 IntelSnowMausi 同时开启",
+   "what": "两个 kext 驱动同一颗 Intel 网卡，同时开启的配置会在启动时以「element modified after free」崩溃。保留一个即可：IntelMausi 适用于当前的 macOS。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Kernel > Add 中，把 IntelSnowMausi.kext 的 Enabled 设为 false。",
+    "重启。"
+   ],
+   "source": "21 kernel panics 'element modified after free'; all 11 with a config had this pair or the previous one"
+  },
+  {
+   "id": "amd-setupvirtualmap",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {
+    "cpu_vendor": "AMD",
+    "cpu_class_not": [
+     "zen45"
+    ],
+    "chipset_not_in": [
+     "AM1",
+     "A68H",
+     "A75",
+     "A78",
+     "A85X",
+     "A88X",
+     "A320",
+     "B350",
+     "X370",
+     "X399"
+    ]
+   },
+   "expect": [
+    {
+     "path": "Booter.Quirks.SetupVirtualMap",
+     "eq": false
+    }
+   ],
+   "restart": true,
+   "title": "Ryzen 启动在 SetupVirtualMap 开启时停在 EB.MM.AKM",
+   "what": "在比 300 系更新的 Ryzen 主板上，SetupVirtualMap 开启时 boot.efi 无法把内核放进内存（EB.MM.AKM，STOP 0x16）。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Booter > Quirks 中，把 SetupVirtualMap 设为 false。",
+    "重启。"
+   ],
+   "source": "stick logs 10-07; Dortania AMD Zen config"
+  },
+  {
+   "id": "amd-devirtualisemmio",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {
+    "cpu_vendor": "AMD",
+    "cpu_class_not": [
+     "zen45"
+    ],
+    "chipset_not_in": [
+     "TRX40",
+     "TRX50"
+    ]
+   },
+   "expect": [
+    {
+     "path": "Booter.Quirks.DevirtualiseMmio",
+     "eq": false
+    }
+   ],
+   "restart": true,
+   "title": "Ryzen 启动在 DevirtualiseMmio 开启时停在 EB.MM.AKM",
+   "what": "所有通过 boot.efi 的 Ryzen 1000 到 5000 启动盘都关闭了 DevirtualiseMmio（150 多次启动中仅 1 次卡住）。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Booter > Quirks 中，把 DevirtualiseMmio 设为 false。",
+    "重启。"
+   ],
+   "source": "1401 1.0.14 stick logs; Dortania AMD Zen config"
+  },
+  {
+   "id": "amd-zen4-memory-map",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {
+    "cpu_vendor": "AMD",
+    "cpu_class": [
+     "zen45"
+    ]
+   },
+   "expect": [
+    {
+     "path": "Booter.Quirks.DevirtualiseMmio",
+     "eq": true
+    },
+    {
+     "path": "Booter.Quirks.SetupVirtualMap",
+     "eq": true
+    }
+   ],
+   "restart": true,
+   "title": "Ryzen 7000/8000/9000 在缺少两个内存设置时停在 EB.MM.AKM",
+   "what": "在 Zen 4 和 Zen 5 上，60 次启动中 DevirtualiseMmio 关闭时全部停在 EB.MM.AKM，开启后 14 次中通过。把 DevirtualiseMmio 和 SetupVirtualMap 都开启后，之前卡住的主板在下次启动时通过。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Booter > Quirks 中，把 DevirtualiseMmio 和 SetupVirtualMap 设为 true。",
+    "重启。"
+   ],
+   "source": "every stick log through 2026-10-10; five AM5 boards before and after"
+  },
+  {
+   "id": "amd-zen4-variable-write",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {
+    "cpu_vendor": "AMD",
+    "cpu_class": [
+     "zen45"
+    ]
+   },
+   "expect": [
+    {
+     "path": "Booter.Quirks.DisableVariableWrite",
+     "eq": true
+    }
+   ],
+   "restart": true,
+   "title": "Ryzen 9000 安装在约 19 分钟时卡死",
+   "what": "安装器在向主板固件写入设置时卡死。开启 DisableVariableWrite 后安装完成。之后 macOS 无法保存自己的启动盘选择；OpenCore 仍会在每次启动时设置它。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Booter > Quirks 中，把 DisableVariableWrite 设为 true。",
+    "重启。"
+   ],
+   "source": "1401 issue #30"
+  },
+  {
+   "id": "mmiowhitelist-without-quirk",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {},
+   "when": [
+    {
+     "path": "Booter.Quirks.DevirtualiseMmio",
+     "eq": false
+    }
+   ],
+   "expect": [
+    {
+     "check": "mmio-whitelist-off"
+    }
+   ],
+   "restart": false,
+   "title": "MmioWhitelist 条目在未开启 DevirtualiseMmio 时存在",
+   "what": "白名单条目只在 DevirtualiseMmio 开启时才起作用，而且 OpenCore 的校验器在没有它时会拒绝这些条目。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Booter > MmioWhitelist 中，把每一条的 Enabled 设为 false。"
+   ],
+   "source": "ocvalidate"
+  },
+  {
+   "id": "relocation-block",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {},
+   "when": [
+    {
+     "path": "Booter.Quirks.ProvideCustomSlide",
+     "eq": true
+    },
+    {
+     "path": "Booter.Quirks.AvoidRuntimeDefrag",
+     "eq": true
+    }
+   ],
+   "expect": [
+    {
+     "path": "Booter.Quirks.AllowRelocationBlock",
+     "eq": true
+    }
+   ],
+   "restart": true,
+   "title": "低内存占满时启动可能停在 STOP 0x16",
+   "what": "AllowRelocationBlock 给 boot.efi 提供了在没有合适内存槽时加载内核的途径。只有那时才会用到它，所以本来就能启动的机器不会触碰它。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Booter > Quirks 中，把 AllowRelocationBlock 设为 true。",
+    "重启。"
+   ],
+   "source": "14 sticks stopped at EB.MM.AKMr2"
+  },
+  {
+   "id": "replace-under-mask",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {},
+   "expect": [
+    {
+     "check": "replace-within-mask"
+    }
+   ],
+   "restart": false,
+   "title": "某个内核补丁通不过 OpenCore 校验器",
+   "what": "有些补丁字节落在 ReplaceMask 之外，因此永远不会被写入，校验器也会拒绝该配置。清掉它们不会改变 OpenCore 的任何行为。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Kernel > Patch 中，让每个 Replace 等于 Replace AND ReplaceMask。"
+   ],
+   "source": "ocvalidate"
+  },
+  {
+   "id": "amd-nvram-write-guard",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {
+    "cpu_vendor": "AMD"
+   },
+   "when": [
+    {
+     "any": [
+      {
+       "path": "Booter.Quirks.SetupVirtualMap",
+       "eq": true
+      },
+      {
+       "path": "Booter.Quirks.DevirtualiseMmio",
+       "eq": true
+      }
+     ]
+    },
+    {
+     "driver": "OpenRuntime.efi",
+     "loaded": true
+    },
+    {
+     "driver": "OpenVariableRuntimeDxe.efi",
+     "loaded": false
+    }
+   ],
+   "expect": [
+    {
+     "path": "Booter.Quirks.DisableVariableWrite",
+     "eq": true
+    }
+   ],
+   "restart": true,
+   "title": "macOS 可能以一种曾让主板无法启动的方式写入你的主板固件",
+   "what": "在内存映射被重写后，macOS 保存到固件的设置让几块 AMD 主板无法通电，有些还需要 BIOS flashback 才能救回。DisableVariableWrite 会阻止这些写入。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Booter > Quirks 中，把 DisableVariableWrite 设为 true。",
+    "重启。"
+   ],
+   "source": "chat 10-10 to 10-15: X870, B650 and a 5600X"
+  },
+  {
+   "id": "tahoe-realtek-ethernet",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {
+    "macos_min": "25.0.0"
+   },
+   "when": [
+    {
+     "kernel_block": "com.apple.iokit.IOSkywalkFamily",
+     "enabled": true
+    },
+    {
+     "any": [
+      {
+       "kext": "RTL812xLucy.kext",
+       "enabled": true
+      },
+      {
+       "kext": "LucyRTL8125Ethernet.kext",
+       "enabled": true
+      }
+     ]
+    }
+   ],
+   "expect": [
+    {
+     "kernel_block": "com.apple.driver.AppleEthernetRL",
+     "enabled": true,
+     "min_kernel": "25.0.0"
+    }
+   ],
+   "restart": true,
+   "title": "macOS 26 在你的 Realtek 网卡配置下停在苹果标志",
+   "what": "macOS 26 自带 Realtek 驱动，而它需要被你的 Wi-Fi 配置阻止的一个系统组件。Lucy 已经在驱动这块网卡，所以苹果的驱动也被一并屏蔽。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Kernel > Block 中，添加 com.apple.driver.AppleEthernetRL，Strategy 为 Exclude，MinKernel 25.0.0，Enabled 为 true。",
+    "重启。"
+   ],
+   "source": "Tahoe with the IOSkywalkFamily downgrade"
+  },
+  {
+   "id": "storage-nvmefix",
+   "scope": [
+    "stick",
+    "installed"
+   ],
+   "match": {
+    "fact": [
+     "nvme_oem_dropout"
+    ]
+   },
+   "when": [
+    {
+     "kext_listed": "NVMeFix.kext"
+    }
+   ],
+   "expect": [
+    {
+     "kext": "NVMeFix.kext",
+     "enabled": true
+    }
+   ],
+   "restart": true,
+   "title": "你的 NVMe 硬盘可能在 macOS 下掉盘",
+   "what": "这个硬盘型号在 macOS 电源管理下可能消失。NVMeFix 能在已知有效的硬盘家族上解决这个问题。",
+   "steps": [
+    "打开 EFI/OC 下的 config.plist。",
+    "在 Kernel > Add 中，把 NVMeFix.kext 的 Enabled 设为 true。",
+    "重启。"
+   ],
+   "source": "storage_drives.py"
+  }
+ ],
+ "builder_only": {
+  "about": "policy.py changes that are build decisions, not facts a working EFI must match. The Mac checker never reports these.",
+  "ids": [
+   "excluded-kexts",
+   "tahoe-weg-args",
+   "arrow-lake-ctrsmt",
+   "hybrid-intel-bios",
+   "nullmoth-installer-bar",
+   "sip-minimal",
+   "known-machine",
+   "machine-recipe",
+   "bootlog-note",
+   "amd-nvram-emulated-write",
+   "amd-emulated-nvram-driver",
+   "amd-emulated-logouthook",
+   "amd-emulated-openruntime-early",
+   "amd-emulated-legacyschema",
+   "boot-logo",
+   "storage-drive-warning",
+   "legal-comments",
+   "amd-laptop-mmio-ff000000",
+   "amd-ssdt-plug-off",
+   "ethernet-built-in",
+   "vault-optional",
+   "coffee-lake-h-reserved-page"
+  ]
+ }
+}

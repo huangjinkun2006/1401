@@ -14,6 +14,11 @@ enum ReleaseSignature {
     // Ed25519 public key, raw 32 bytes, base64. The private key lives off the build host (release.py signs with it).
     static let publicKeyBase64 = "ztPmcj+mcHYM1X2lrp24yjq0xBuzke7gh5XJ3E2fd4E="
 
+    // Our own release key for the zh-CN fork's app auto-update. The private key signs every 1401-Mac-*.zip we publish
+    // to huangjinkun2006/1401; it stays at ~/.config/1401-release/ and is never committed. The app update path
+    // (product "1401-mac") verifies against this key, while driver updates keep using the NullMoth key above.
+    static let ourPublicKeyBase64 = "z7rwC736DAnxPOG+nm++A4IH1C1pk63Qh8I6BQIyJXs="
+
     // Verify a detached signature (raw 64-byte Ed25519, base64) over the exact bytes of `zip` against the
     // compiled-in release key. Missing/empty/truncated signature, wrong key, or altered bytes all return false.
     static func verify(zip: URL, signatureBase64: String) -> Bool {

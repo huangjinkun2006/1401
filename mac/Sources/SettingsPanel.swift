@@ -84,7 +84,10 @@ final class SettingsPanel: NSObject, WKScriptMessageHandler {
         guard let b = m.body as? [String: Any], let act = b["act"] as? String else { return }
         switch act {
         case "load":
-            DispatchQueue.global().async { let g = GpuFacts.read(); self.reply("load", self.loadPayload(gpus: g)) }
+            DispatchQueue.global().async {
+                let g = GpuFacts.read(); self.reply("load", self.loadPayload(gpus: g))
+                self.reply("proxy", ProxyConfig.current.dictionary)
+            }
         case "apply":
             guard let id = b["id"] as? String, let value = b["value"] as? String, let s = catalog.find(id) else { return }
             let ba = bootArgs(), conf = confText()
@@ -106,6 +109,14 @@ final class SettingsPanel: NSObject, WKScriptMessageHandler {
                                       "message": now == (expect ?? "default") ? "Changed. It takes effect after: \(s.where_ == "bootarg" ? "you restart" : s.effect)." : "The change did not stick (now \(now)).",
                                       "current": now])
             }
+        case "proxy":
+            // The in-app outbound proxy. Saved to Application Support; the shared session is refreshed so the next
+            // network call picks it up. A restart is recommended so the lazy download session is rebuilt too.
+            guard let enabled = b["enabled"] as? Bool, let type = b["type"] as? String,
+                  let host = b["host"] as? String, let port = b["port"] as? Int else { return }
+            let c = ProxyConfig(enabled: enabled, type: type, host: host, port: port)
+            c.save(); ProxyConfig.refresh()
+            reply("proxy", c.dictionary)
         default: break
         }
     }

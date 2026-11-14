@@ -201,15 +201,15 @@ enum ArmApps {
     }
 
     static func remove(_ name: String) -> String? {
-        guard validAppName(name) else { return "that is not a translated app's name" }
+        guard validAppName(name) else { return "那不是已转译应用的名称" }
         let r = App.runBounded(URL(fileURLWithPath: cli), ["remove", name], seconds: 120)
-        if r.timedOut { return "nm-arm remove did not finish within 2 minutes" }
+        if r.timedOut { return "nm-arm 移除操作在 2 分钟内未完成" }
         // stdout is one line: {"ok":true,"removed":[...]} or {"ok":false,"why":"..."}
         let j = (try? JSONSerialization.jsonObject(with: r.out)) as? [String: Any]
         if r.status != 0 || j?["ok"] as? Bool == false {
-            if let why = j?["why"] as? String, !why.isEmpty { return "could not remove \(name): \(why)" }
+            if let why = j?["why"] as? String, !why.isEmpty { return "无法移除 \(name)：\(why)" }
             let text = String(decoding: r.out.prefix(400), as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
-            return "could not remove \(name) (nm-arm exited \(r.status))" + (text.isEmpty ? "" : ": " + text)
+            return "无法移除 \(name)（nm-arm 退出码 \(r.status)）" + (text.isEmpty ? "" : "：\(text)")
         }
         return nil
     }
@@ -530,7 +530,7 @@ extension App {
     func armAction(_ b: [String: Any]) {
         switch b["op"] as? String ?? "" {
         case "status": armStatus(); armWindowsRequest()
-        case "check": armBusy("Checking this Mac..."); armStatus()
+        case "check": armBusy("正在检查本机..."); armStatus()
         case "on": armTurnOn(source: b["from"] as? String == "windows" ? ArmApps.windowsSource : "user")
         case "notNow":
             // the banner's "Not now": a decision, so it does not come back; the card's own Turn on still works
@@ -541,18 +541,22 @@ extension App {
             // Apple's own installer window; no password is needed to ask for it
             let p = Process(); p.executableURL = URL(fileURLWithPath: "/usr/bin/xcode-select"); p.arguments = ["--install"]
             p.standardOutput = FileHandle.nullDevice; p.standardError = FileHandle.nullDevice
-            do { try p.run(); armBusy("macOS is asking to install the Command Line Tools. When that finishes, press Check this Mac.") }
-            catch { armFail("Could not ask macOS for the Command Line Tools: \(error.localizedDescription)") }
+            do { try p.run(); armBusy("macOS 正在请求安装命令行工具。完成后请点「检查此 Mac」。") }
+            catch { armFail("无法让 macOS 安装命令行工具：\(error.localizedDescription)") }
         case "translate": armTranslate()
         case "brew": armBrew(pick: b["pick"] as? String ?? "", primary: b["primary"] as? String ?? "")
         case "cancel": ArmApps.job?.stop()
         case "open":
-            guard let path = b["path"] as? String, ArmApps.inOutputDir(path) else { return armFail("That app is not in the NullMoth ARM folder.") }
-            if !NSWorkspace.shared.open(URL(fileURLWithPath: path)) { armFail("macOS could not open \(URL(fileURLWithPath: path).lastPathComponent).") }
+            guard let path = b["path"] as? String, ArmApps.inOutputDir(path) else { return armFail("该应用不在 NullMoth ARM 文件夹中。") }
+            if !NSWorkspace.shared.open(URL(fileURLWithPath: path)) { armFail("macOS 无法打开 \(URL(fileURLWithPath: path).lastPathComponent)。") }
+        case "openFolder":
+            let dir = ArmApps.outputDir
+            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+            if !NSWorkspace.shared.open(dir) { armFail("macOS 无法打开转译文件夹：\(dir.path)。") }
         case "remove":
-            guard let name = b["name"] as? String, ArmApps.validAppName(name) else { return armFail("That is not a translated app.") }
-            guard ArmApps.job == nil else { return armFail("Wait for the translation to finish, or cancel it, first.") }
-            armBusy("Removing \(name)...")
+            guard let name = b["name"] as? String, ArmApps.validAppName(name) else { return armFail("那不是一个已转译的应用。") }
+            guard ArmApps.job == nil else { return armFail("请先等待转译完成，或先取消它。") }
+            armBusy("正在移除 \(name)...")
             DispatchQueue.global(qos: .userInitiated).async {
                 if let why = ArmApps.remove(name) { self.armFail(why) }
                 self.armStatus()
@@ -567,29 +571,29 @@ extension App {
     /// nothing, so the user can simply try again.
     func armTurnOn(source: String = "user") {
         let auto = source != "user"
-        let lead = auto ? "1401 for Windows asked for ARM apps. " : ""
-        armBusy(lead + "Reading the ARM translator package list...")
+        let lead = auto ? "1401 for Windows 请求开启 ARM 应用。" : ""
+        armBusy(lead + "正在读取 ARM 转译器软件包列表...")
         DispatchQueue.global(qos: .userInitiated).async {
             let fail = { (why: String) in
                 if auto { ArmApps.saveDecision(on: false, source: source, skipped: why) }
-                self.armFail((auto ? "ARM apps (asked for in 1401 for Windows): not set up - " : "") + why)
+                self.armFail((auto ? "ARM 应用（由 1401 for Windows 请求开启）：未设置 - " : "") + why)
             }
-            if auto, let why = ArmApps.cpuGate(features: ArmApps.cpuFeatures()) { return fail("Not installed: \(why).") }
-            guard let b = ArmApps.latest() else { return fail("Could not read the ARM translator package list from nullmothsystems.com.") }
-            self.armBusy(lead + "Downloading the ARM translator \(b.version) and checking its signature...")
+            if auto, let why = ArmApps.cpuGate(features: ArmApps.cpuFeatures()) { return fail("未安装：\(why)。") }
+            guard let b = ArmApps.latest() else { return fail("无法从 nullmothsystems.com 读取 ARM 转译器软件包列表。") }
+            self.armBusy(lead + "正在下载 ARM 转译器 \(b.version) 并校验其签名...")
             let got = ArmApps.fetch(b)
-            guard let path = got.path, let digest = got.sha256 else { return fail("Not installed: \(got.why ?? "the package could not be checked").") }
-            guard let cmd = ArmApps.installCommand(package: path, sha: digest) else { return fail("Not installed: the package list is malformed.") }
-            self.armBusy(lead + "Waiting for your Mac password (a macOS window asks for it) to install the ARM translator...")
+            guard let path = got.path, let digest = got.sha256 else { return fail("未安装：\(got.why ?? "软件包无法通过校验")。") }
+            guard let cmd = ArmApps.installCommand(package: path, sha: digest) else { return fail("未安装：软件包列表格式不正确。") }
+            self.armBusy(lead + "正在等待你的 Mac 密码（macOS 会弹出窗口请求输入）以安装 ARM 转译器...")
             DispatchQueue.main.async { NSApp.activate(ignoringOtherApps: true) }
             let r = Privileged.run(cmd, timeout: 20 * 60)
-            if r.cancelled { return fail("Not installed: the password prompt was cancelled.") }
+            if r.cancelled { return fail("未安装：密码提示已被取消。") }
             guard r.output.contains(ArmApps.installedMarker), ArmApps.isInstalled else {
                 let tail = r.output.split(whereSeparator: \.isNewline).suffix(6).joined(separator: "\n")
-                return fail("The ARM translator did not install. " + redact(r.error ?? "") + (tail.isEmpty ? "" : "\n" + redact(tail)))
+                return fail("ARM 转译器未能安装。" + redact(r.error ?? "") + (tail.isEmpty ? "" : "\n" + redact(tail)))
             }
             ArmApps.saveDecision(on: true, source: source)
-            self.armStatus(["note": lead + "On: the ARM translator \(b.version) is installed."])
+            self.armStatus(["note": lead + "已开启：ARM 转译器 \(b.version) 已安装。"])
         }
     }
 
@@ -613,19 +617,19 @@ extension App {
 
     func armTurnOff() {
         let a = NSAlert()
-        a.messageText = "Turn off ARM apps?"
-        a.informativeText = "This removes the ARM translator and every app it translated for you (the copies in Applications > NullMoth ARM). Your original apps and the NullMoth driver are not touched. An ARM Homebrew in /opt/homebrew stops working until ARM apps is turned on again; an Intel Homebrew in /usr/local is not affected. macOS asks for your password."
-        a.addButton(withTitle: "Turn off"); a.addButton(withTitle: "Cancel")
+        a.messageText = "关闭 ARM 应用？"
+        a.informativeText = "这将移除 ARM 转译器，以及它为你转译的所有应用（位于「应用程序 › NullMoth ARM」中的副本）。你的原始应用与 NullMoth 驱动不受影响。/opt/homebrew 下的 ARM 版 Homebrew 在重新开启 ARM 应用前将停止使用；/usr/local 下的 Intel 版 Homebrew 不受影响。macOS 会请求你的密码。"
+        a.addButton(withTitle: "关闭"); a.addButton(withTitle: "取消")
         guard a.runModal() == .alertFirstButtonReturn else { return armStatus() }
         ArmApps.job?.stop()
-        guard let cmd = ArmApps.uninstallCommand(user: NSUserName()) else { return armFail("Your account name cannot be passed to the uninstaller.") }
-        armBusy("Waiting for your Mac password (a macOS window asks for it) to remove the ARM translator...")
+        guard let cmd = ArmApps.uninstallCommand(user: NSUserName()) else { return armFail("你的账户名无法传递给卸载程序。") }
+        armBusy("正在等待你的 Mac 密码（macOS 会弹出窗口请求输入）以移除 ARM 转译器...")
         DispatchQueue.global(qos: .userInitiated).async {
             let r = Privileged.run(cmd, timeout: 10 * 60)
-            if r.cancelled { return self.armFail("Still on: the password prompt was cancelled.") }
+            if r.cancelled { return self.armFail("仍在开启状态：密码提示已被取消。") }
             guard r.output.contains(ArmApps.removedMarker), !ArmApps.isInstalled else {
                 let tail = r.output.split(whereSeparator: \.isNewline).suffix(6).joined(separator: "\n")
-                return self.armFail("The ARM translator was not fully removed. " + redact(r.error ?? "") + (tail.isEmpty ? "" : "\n" + redact(tail)))
+                return self.armFail("ARM 转译器未被完全移除。" + redact(r.error ?? "") + (tail.isEmpty ? "" : "\n" + redact(tail)))
             }
             // the downloaded package is no longer needed either
             let fm = FileManager.default
@@ -633,35 +637,35 @@ extension App {
                 try? fm.removeItem(at: support.appendingPathComponent(f))
             }
             ArmApps.saveDecision(on: false, source: "user")
-            self.armStatus(["note": "Off: the ARM translator and its translated apps are removed."])
+            self.armStatus(["note": "已关闭：ARM 转译器及其已转译的应用已移除。"])
         }
     }
 
     func armTranslate() {
-        guard ArmApps.job == nil else { return armFail("A translation is already running.") }
-        guard ArmApps.isInstalled else { return armFail("Turn ARM apps on first.") }
+        guard ArmApps.job == nil else { return armFail("已有转译任务正在运行。") }
+        guard ArmApps.isInstalled else { return armFail("请先开启 ARM 应用。") }
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.applicationBundle] + (UTType("com.apple.itunes.ipa").map { [$0] } ?? [])
         panel.directoryURL = URL(fileURLWithPath: "/Applications")
         panel.prompt = "Translate"
-        panel.message = "Pick an app built for Apple silicon, or an iPhone or iPad app (.ipa) you built yourself. Your original stays as it is; the copy goes to Applications > NullMoth ARM."
+        panel.message = "选择一个为 Apple 芯片构建的应用，或你自己构建的 iPhone / iPad 应用（.ipa）。你的原始应用保持不变；副本会放到「应用程序 › NullMoth ARM」。"
         guard panel.runModal() == .OK, let picked = panel.url else { return armStatus() }
         let name = picked.deletingPathExtension().lastPathComponent
-        armBusy("Checking this Mac before translating \(name)...")
+        armBusy("正在转译 \(name) 前检查本机...")
         DispatchQueue.global(qos: .userInitiated).async {
             let c = ArmApps.check()
             guard c["ok"] as? Bool == true else {
-                return self.armFail("Not translated: \(c["why"] as? String ?? "this Mac did not pass the check").")
+                return self.armFail("未转译：\(c["why"] as? String ?? "本机未通过检查")。")
             }
             var app = picked
             if picked.pathExtension.lowercased() == "ipa" {
-                self.armBusy("Preparing \(name) as a Mac app...")
+                self.armBusy("正在将 \(name) 准备为 Mac 应用...")
                 let made = ArmApps.wrapIpa(picked)
-                guard let wrapped = made.app else { return self.armFail("Not translated: \(made.why ?? "the iPhone app could not be prepared").") }
+                guard let wrapped = made.app else { return self.armFail("未转译：\(made.why ?? "无法准备该 iPhone 应用")。") }
                 app = wrapped
             }
             DispatchQueue.main.async {
-                guard ArmApps.job == nil else { return self.armFail("A translation is already running.") }
+                guard ArmApps.job == nil else { return self.armFail("已有转译任务正在运行。") }
                 self.armRunJob(ArmApps.Job(app: app), name: name, what: "app")
             }
         }
@@ -678,8 +682,8 @@ extension App {
             DispatchQueue.main.async {
                 if ArmApps.job === job { ArmApps.job = nil }
                 if cancelled {
-                    let why = what == "brew" ? "Cancelled. What was already set up stays; Set up Homebrew again continues from there."
-                                             : "Cancelled. Nothing was added."
+                    let why = what == "brew" ? "已取消。已设置的部分保留；重新设置 Homebrew 会从中继续。"
+                                             : "已取消。未添加任何内容。"
                     self.send("arm", ["kind": "done", "ok": false, "app": name, "what": what, "why": why])
                 } else if status == 0 && (last["stage"] as? String ?? "") != "error" {
                     self.send("arm", ["kind": "done", "ok": true, "app": name, "what": what, "msg": last["msg"] as? String ?? ""])
@@ -692,44 +696,44 @@ extension App {
             }
         })
         if let why { ArmApps.job = nil; self.armFail(why) }
-        else { self.send("arm", ["kind": "progress", "app": name, "stage": "start", "pct": 0, "msg": "Starting..."]) }
+        else { self.send("arm", ["kind": "progress", "app": name, "stage": "start", "pct": 0, "msg": "正在开始..."]) }
     }
 
     /// Set up Homebrew: the ARM one (/opt/homebrew, translated), the Intel one (/usr/local, native), or both. One
     /// password prompt creates the folders; the rest runs as the user with progress in the card.
     func armBrew(pick: String, primary: String) {
-        guard ArmApps.job == nil else { return armFail("Wait for the translation to finish, or cancel it, first.") }
-        guard ArmApps.isInstalled else { return armFail("Turn ARM apps on first: Homebrew is set up by the ARM translator.") }
-        guard let args = ArmApps.brewSetupArguments(pick: pick, primary: primary) else { return armFail("That is not a Homebrew choice.") }
+        guard ArmApps.job == nil else { return armFail("请先等待转译完成，或先取消它。") }
+        guard ArmApps.isInstalled else { return armFail("请先开启 ARM 应用：Homebrew 由 ARM 转译器负责设置。") }
+        guard let args = ArmApps.brewSetupArguments(pick: pick, primary: primary) else { return armFail("这不是有效的 Homebrew 选项。") }
         let wantArm = pick != "intel", wantIntel = pick != "arm"
         let a = NSAlert()
-        a.messageText = "Set up Homebrew?"
-        a.informativeText = (wantArm ? "ARM Homebrew goes in /opt/homebrew and installs Homebrew's Apple-silicon packages, translated for this Mac (the first install of a big package can take a while). " : "")
-            + (wantIntel ? "Intel Homebrew goes in /usr/local and runs natively; Homebrew no longer publishes Intel packages for most formulae, so it usually builds them from source. " : "")
-            + "In Terminal, brew is the \(primary == "arm" ? "ARM" : "Intel") one; abrew is always ARM and ibrew always Intel. macOS asks for your password once, to create the folders."
-        a.addButton(withTitle: "Set up"); a.addButton(withTitle: "Cancel")
+        a.messageText = "设置 Homebrew？"
+        a.informativeText = (wantArm ? "ARM 版 Homebrew 安装在 /opt/homebrew，用于安装 Homebrew 的 Apple 芯片软件包（为本机转译），首次安装较大的包可能耗时较久。" : "")
+            + (wantIntel ? "Intel 版 Homebrew 安装在 /usr/local 并原生运行；Homebrew 已不再为多数 formula 提供 Intel 包，因此通常需从源码编译。" : "")
+            + "在终端中，brew 指\(primary == "arm" ? "ARM" : "Intel")那一个；abrew 始终是 ARM 版，ibrew 始终是 Intel 版。macOS 会请求一次密码以创建目录。"
+        a.addButton(withTitle: "设置"); a.addButton(withTitle: "取消")
         guard a.runModal() == .alertFirstButtonReturn else { return armStatus() }
         armBusy("Checking this Mac before setting up Homebrew...")
         DispatchQueue.global(qos: .userInitiated).async {
             if wantArm {
                 let c = ArmApps.check()
                 guard c["ok"] as? Bool == true else {
-                    return self.armFail("ARM Homebrew needs a Mac that passes the check: \(c["why"] as? String ?? "this Mac did not pass").")
+                    return self.armFail("ARM 版 Homebrew 需要一台通过检查的 Mac：\(c["why"] as? String ?? "本机未通过检查")。")
                 }
             }
             guard let cmd = ArmApps.brewRootCommand(user: NSUserName(), arm: wantArm, intel: wantIntel) else {
-                return self.armFail("Your account name cannot be passed to the folder step.")
+                return self.armFail("你的账户名无法传递给创建目录步骤。")
             }
-            self.armBusy("Waiting for your Mac password (a macOS window asks for it) to create the Homebrew folders...")
+            self.armBusy("正在等待你的 Mac 密码（macOS 会弹出窗口请求输入）以创建 Homebrew 目录...")
             DispatchQueue.main.async { NSApp.activate(ignoringOtherApps: true) }
             let r = Privileged.run(cmd, timeout: 5 * 60)
-            if r.cancelled { return self.armFail("Homebrew was not set up: the password prompt was cancelled.") }
+            if r.cancelled { return self.armFail("Homebrew 未设置：密码提示已被取消。") }
             guard r.output.contains(ArmApps.brewDirsMarker) else {
                 let tail = r.output.split(whereSeparator: \.isNewline).suffix(6).joined(separator: "\n")
-                return self.armFail("The Homebrew folders could not be created. " + redact(r.error ?? "") + (tail.isEmpty ? "" : "\n" + redact(tail)))
+                return self.armFail("Homebrew 目录无法创建。" + redact(r.error ?? "") + (tail.isEmpty ? "" : "\n" + redact(tail)))
             }
             DispatchQueue.main.async {
-                guard ArmApps.job == nil else { return self.armFail("A translation is already running.") }
+                guard ArmApps.job == nil else { return self.armFail("已有转译任务正在运行。") }
                 self.armRunJob(ArmApps.Job(arguments: args), name: "Homebrew", what: "brew")
             }
         }

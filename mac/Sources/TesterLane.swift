@@ -164,7 +164,7 @@ enum Tester {
                 .replacingOccurrences(of: "=", with: ""), forHTTPHeaderField: "X-Meta")
             req.setValue(sha, forHTTPHeaderField: "X-Content-SHA256")
             let done = DispatchSemaphore(value: 0); let result = ReportUploadResult()
-            let task = URLSession.shared.dataTask(with: req) { d, r, e in result.finish(data: d, response: r, error: e, sha256: sha); done.signal() }
+            let task = ProxyConfig.session.dataTask(with: req) { d, r, e in result.finish(data: d, response: r, error: e, sha256: sha); done.signal() }
             task.resume()
             let timedOut = done.wait(timeout: .now() + 90) == .timedOut
             if timedOut { task.cancel() }

@@ -1,6 +1,6 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; script-src 'self'">
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; script-src 'self'; connect-src https: http://127.0.0.1:* http://localhost:* http://127.0.0.1:11434 http://localhost:11434">
 <title>1401</title>
 <link rel="stylesheet" href="app.css">
 </head><body>
@@ -8,192 +8,367 @@
 <div class="sky sky1" aria-hidden="true"></div><div class="sky sky2" aria-hidden="true"></div><div class="sky sky3" aria-hidden="true"></div>
 
 <header class="bar">
-<span class="ttl" id="ttl">1401 — This Mac</span>
-<button type="button" class="theme" id="theme" aria-label="Switch between light and dark">
+<span class="ttl" id="ttl">1401 — 本机</span>
+<button type="button" class="theme" id="theme" aria-label="切换浅色与深色模式">
 <svg class="moon" viewBox="0 0 12 12" aria-hidden="true"><path d="M8.5 7.5A4 4 0 0 1 4.5 2.2a4 4 0 1 0 4 5.3z"/></svg>
 <svg class="sun" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="2.2"/><path d="M6 .8v1.4M6 9.8v1.4M.8 6h1.4M9.8 6h1.4M2.3 2.3l1 1M8.7 8.7l1 1M2.3 9.7l1-1M8.7 3.3l1-1"/></svg>
 <span class="knob"></span></button>
 </header>
 
 <div class="main">
-<nav class="pane side" aria-label="Sections">
-<button type="button" class="nav tab on" data-t="drv" data-title="This Mac"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>This Mac</button>
-<button type="button" class="nav tab" data-t="efi" data-title="Issues"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>Issues<span class="count" id="efin" hidden></span></button>
-<button type="button" class="nav tab" data-t="tools" data-title="Tools"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18v12H3z"/><path d="M3 7l3-3h12l3 3M10 12h4"/></svg>Tools · Mount EFI</button>
-<button type="button" class="nav tab" data-t="usb" data-title="USB ports"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v14M8 7l4-4 4 4M7 13h10M9 21h6v-4H9z"/></svg>USB ports</button>
-<button type="button" class="nav tab" data-t="crash" data-title="Send a report"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H8l-4 4z"/></svg>Send a report</button>
-<div class="sidefoot">Driver <span id="ver"></span><br><a href="#" id="src">Source code</a> · <a href="#" id="ocg">OpenCore guide</a></div>
+<nav class="pane side" aria-label="分区">
+<button type="button" class="nav tab on" data-t="drv" data-title="本机"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>本机</button>
+<button type="button" class="nav tab" data-t="efi" data-title="问题检查"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>问题检查<span class="count" id="efin" hidden></span></button>
+<button type="button" class="nav tab" data-t="tools" data-title="工具"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18v12H3z"/><path d="M3 7l3-3h12l3 3M10 12h4"/></svg>工具 · 挂载 EFI</button>
+<button type="button" class="nav tab" data-t="usb" data-title="USB 端口"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v14M8 7l4-4 4 4M7 13h10M9 21h6v-4H9z"/></svg>USB 端口</button>
+<button type="button" class="nav tab" data-t="crash" data-title="发送报告"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H8l-4 4z"/></svg>发送报告</button>
+<button type="button" class="nav tab" data-t="ailog" data-title="AI 日志解析"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M18 16l.8 2.2L21 19l-2.2.8L18 22l-.8-2.2L15 19l2.2-.8z"/></svg>AI 日志解析</button>
+<button type="button" class="nav tab" data-t="help" data-title="使用说明"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11a2 2 0 0 1 2 2v15H7a2 2 0 0 1-2-2z"/><path d="M5 17a2 2 0 0 1 2-2h11M9 7h6M9 11h6"/></svg>使用说明</button>
+<div class="sidefoot">驱动 <span id="ver"></span><br><a href="#" id="src">源代码</a> · <a href="#" id="ocg">OpenCore 指南</a></div>
 </nav>
 
 <main class="content">
 
 <section id="t-drv">
-<h1>Your Mac, mapped</h1>
-<p class="lede">1401 sets up the NullMoth driver on OpenCore Macs running macOS 15.5 or later, or macOS 26 Tahoe. <b>Keep the USB stick or disk OpenCore started this Mac from plugged in</b>: 1401 changes the settings on that one.</p>
-<table class="pc"><tbody id="mac"><tr><th>Looking...</th><td>one second</td></tr></tbody></table>
+<h1>你的 Mac，一目了然</h1>
+<p class="lede">1401 为运行 macOS 15.5 或更高版本（含 macOS 26 Tahoe）的 OpenCore 黑苹果安装 NullMoth 驱动。<b>请保持引导本机启动的 U 盘或硬盘（OpenCore 所在盘）始终插在电脑上</b>：1401 要改的就是那上面的设置。</p>
+<table class="pc"><tbody id="mac"><tr><th>检测中...</th><td>稍等片刻</td></tr></tbody></table>
 
 <div id="verdict" class="pane card"></div>
 
 <div id="steps" class="pane card" hidden>
-<p class="sh">What happens</p>
+<p class="sh">操作流程</p>
 <ol class="todo">
-<li id="s1"><b>Get the driver.</b> <span id="s1t"></span> <button type="button" class="b go" id="dl" hidden>Download it</button> <span id="dlp"></span></li>
-<li id="s2"><b>Look before touching anything.</b> 1401 reads your OpenCore config and lists every change it would make. Nothing is changed. (macOS asks for your password.) <button type="button" class="b" id="dry" disabled>Show me the changes</button></li>
-<li id="s3"><b>Install.</b> Backs up your OpenCore config, makes exactly the changes listed, installs the driver, and adds <i>1401: Remove NVIDIA driver</i> to your boot picker. <button type="button" class="b go" id="go" disabled>Install the driver</button></li>
-<li id="s4"><b>Restart.</b> If macOS says a system extension was blocked, open <a href="#" id="priv">Privacy &amp; Security</a>, click Allow, and restart once more. <button type="button" class="b" id="rs" disabled>Restart now</button></li>
+<li id="s1"><b>获取驱动。</b> <span id="s1t"></span> <button type="button" class="b go" id="dl" hidden>下载驱动</button> <span id="dlp"></span></li>
+<li id="s2"><b>先看清楚再动手。</b> 1401 会读取你的 OpenCore 配置，并列出它要做的每一处改动。此步不会改任何东西。（macOS 会要求输入密码。） <button type="button" class="b" id="dry" disabled>预览改动清单</button></li>
+<li id="s3"><b>安装。</b> 自动备份你的 OpenCore 配置，只执行清单中列出的改动，安装驱动，并在启动菜单里加入 <i>1401: Remove NVIDIA driver</i>。 <button type="button" class="b go" id="go" disabled>安装驱动</button></li>
+<li id="s4"><b>重启。</b> 如果 macOS 提示系统扩展被阻止，打开 <a href="#" id="priv">隐私与安全性</a>，点「允许」，然后再重启一次。 <button type="button" class="b" id="rs" disabled>立即重启</button></li>
 </ol>
-<p id="efirow" hidden>The startup partition could not be confirmed. Select the OpenCore partition this Mac started from: <select id="efi"></select> <button type="button" class="b" id="cfgpick">Choose the config.plist file myself...</button></p>
+<p id="efirow" hidden>无法确认启动分区。请选择本机启动时所用的 OpenCore 分区： <select id="efi"></select> <button type="button" class="b" id="cfgpick">手动选择 config.plist 文件...</button></p>
 </div>
 
-<div id="logwrap" class="pane card" hidden><p class="sh">What 1401 is doing</p><pre id="log" aria-live="polite"></pre>
-<p class="small"><a href="#" id="logs">Open the log folder</a></p></div>
+<div id="logwrap" class="pane card" hidden><p class="sh">1401 正在进行的工作</p><pre id="log" aria-live="polite"></pre>
+<p class="small"><a href="#" id="logs">打开日志文件夹</a></p></div>
 
-<div class="pane card"><p class="sh">Updates</p>
-<p>1401 checks for the newest NullMoth driver and the newest 1401 app. The app updates itself and reopens. The driver is downloaded, checked against its published SHA-256 and installed the same way as above, with your OpenCore config backed up first.</p>
-<p class="row"><button type="button" class="b go" id="updchk">Check for updates</button> <button type="button" class="b go" id="upddrv" hidden>Update driver</button> <button type="button" class="b go" id="updapp" hidden>Update the app</button> <span id="updr"></span></p>
-<p><b>Early updates.</b> A new driver goes first to people who turn this on, and reaches everyone once their machines show it made nothing worse. Turn it on to get releases a day or two early and send logs when something is off.</p>
-<p class="row"><button type="button" class="b" id="earlyon">Turn early updates on</button> <button type="button" class="b" id="earlyoff" hidden>Turn early updates off</button> <span id="earlyr"></span></p></div>
+<div class="pane card"><p class="sh">更新</p>
+<p><b>驱动更新</b>来自 NullMoth 官方：按上面的流程下载、对照官方 SHA-256 校验后安装，安装前会先备份 OpenCore 配置。<b>应用更新</b>由本汉化版维护者发布，并接入了自动更新：点「检查汉化版更新」在当前页面直接检查本仓库 Release，有新版时「更新应用」按钮出现，下载后会先用维护者密钥校验签名；只有检查失败或想手动下载时才需要「打开发布页」。驱动更新仍走 NullMoth 官方，互不影响。</p>
+<p class="row"><button type="button" class="b go" id="updchk">检查驱动更新</button> <button type="button" class="b go" id="zhupd">检查汉化版更新</button> <button type="button" class="b" id="zhrel" hidden>打开发布页</button> <button type="button" class="b go" id="upddrv" hidden>更新驱动</button> <button type="button" class="b go" id="updapp" hidden>更新应用</button> <span id="updr"></span> <span id="appupdstat"></span></p>
+<p><b>抢先更新。</b> 新驱动会先推送给开启此选项的用户，等他们的机器确认没有问题后再向所有人开放。开启后可提前一两天拿到新版本，并在出现异常时提交日志。</p>
+<p class="row"><button type="button" class="b" id="earlyon">开启抢先更新</button> <button type="button" class="b" id="earlyoff" hidden>关闭抢先更新</button> <span id="earlyr"></span></p></div>
 
-<div class="pane card"><p class="sh">Update to macOS 26 Tahoe</p>
-<p>From macOS 15, <b>Prepare this Mac for Tahoe</b> installs or updates the driver, parks it, and gives the installer the small GPU BAR it needs so its screens show. Then install macOS 26 from Software Update; the first start after the update sets the driver up for Tahoe and restarts once by itself. <b>Cancel the Tahoe preparation</b> puts everything back.</p>
-<p class="row"><button type="button" class="b" id="upd" disabled>Prepare this Mac for Tahoe</button> <button type="button" class="b" id="swu" hidden>Open Software Update</button> <button type="button" class="b" id="updc">Cancel the Tahoe preparation</button> <span id="updt"></span></p></div>
+<div class="pane card"><p class="sh">升级到 macOS 26 Tahoe</p>
+<p>在 macOS 15 上，<b>为本机准备 Tahoe</b> 会安装或更新驱动、将其挂起（park），并给安装器提供屏幕点亮所需的小容量 GPU BAR 设置。之后从「软件更新」安装 macOS 26；更新后的首次开机会自动完成驱动的 Tahoe 适配并自行重启一次。<b>取消 Tahoe 准备</b> 则会还原全部改动。</p>
+<p class="row"><button type="button" class="b" id="upd" disabled>为本机准备 Tahoe</button> <button type="button" class="b" id="swu" hidden>打开软件更新</button> <button type="button" class="b" id="updc">取消 Tahoe 准备</button> <span id="updt"></span></p></div>
 
-<div class="pane card"><p class="sh">If something goes wrong after you restart</p>
-<p>In the OpenCore boot picker choose <b>1401: Remove NVIDIA driver</b>, then your macOS disk. 1401 removes the driver and restarts, and this Mac comes back as it was before the install, OpenCore config included. The screen may stay dark until that second restart.</p>
-<p class="row"><button type="button" class="b" id="rm">Remove the driver</button></p></div>
+<div class="pane card"><p class="sh">如果重启后出了问题</p>
+<p>在 OpenCore 启动菜单中选择 <b>1401: Remove NVIDIA driver</b>，再选你的 macOS 磁盘。1401 会卸载驱动并重启，本机将恢复到安装前的状态（包括 OpenCore 配置）。在第二次重启之前屏幕可能保持黑屏。</p>
+<p class="row"><button type="button" class="b" id="rm">卸载驱动</button></p></div>
 </section>
 
 <section id="t-efi" hidden>
-<div class="head"><div><h1>Check my EFI</h1>
-<p class="lede">Checks the OpenCore setup this Mac starts from against the settings that work on PCs like yours, and explains anything that needs changing, with the steps. It only reads: nothing is changed. Asks for your password once.</p></div>
-<button type="button" class="b go" id="efichk">Check my EFI</button></div>
+<div class="head"><div><h1>检查我的 EFI</h1>
+<p class="lede">对照与你机型相同/相近的机器验证过的配置，检查本机启动所用的 OpenCore 设置，并解释需要修改的地方及具体步骤。只读不写：不会改动任何东西。会要求输入一次密码。</p></div>
+<button type="button" class="b go" id="efichk">检查我的 EFI</button></div>
 <p id="efichkr"></p>
 <div id="efiout"></div>
 </section>
 
 <section id="t-tools" hidden>
-<h1>Tools</h1>
-<div class="pane card"><p class="sh">Mount EFI</p>
-<p>The EFI partition holds your boot setup. 1401 finds the one this Mac started from, mounts it and opens it in Finder. Asks for your password once.</p>
-<p class="row"><button type="button" class="b go" id="efimount">Mount EFI</button> <span id="efimountr"></span></p></div>
-<div class="pane card"><p class="sh">Startup text (verbose mode)</p>
-<p>Shows what macOS is doing while it starts instead of the Apple logo. Useful if a start hangs. Takes effect at the next restart.</p>
-<p class="row"><button type="button" class="b" id="vbon">Turn verbose on</button> <button type="button" class="b" id="vboff">Turn verbose off</button></p></div>
-<div class="pane card"><p class="sh">Built-in screen brightness (laptops)</p>
-<p>For a laptop whose built-in screen is wired to the NVIDIA GPU (MUX set to Discrete or dGPU). It lets the driver read the panel's brightness controls from the laptop's firmware. It is off by default because that call stopped some PCs at GPU start; if yours stops there, choose <b>1401: Start once without NVIDIA driver</b> in the boot picker and turn it off here.</p>
-<p class="row"><button type="button" class="b" id="blon">Turn brightness control on</button> <button type="button" class="b" id="bloff">Turn it off</button></p></div>
-<div class="pane card"><p class="sh">HiDPI (Retina) modes</p>
-<p>Lets HiDPI "looks like" sizes work, for example 1920 x 1080 on a 2560 x 1440 screen, including ones added with a tool such as BetterDisplay. Without it such a size is refused and switches back. The driver draws the desktop at up to twice the screen's size, which uses more video memory. Takes effect at the next restart.</p>
-<p class="row"><button type="button" class="b" id="hdon">Turn HiDPI modes on</button> <button type="button" class="b" id="hdoff">Turn them off</button></p></div>
-<div class="pane card" id="autologin" hidden><p class="sh">Automatic login</p>
-<p>1401 turned on automatic login so this Mac could reach the desktop while the driver was missing. That stores your password in a form anyone who can read the disk can recover. Once the driver works, turn it off.</p>
-<p class="row"><button type="button" class="b" id="autologinoff">Turn automatic login off</button></p></div>
-<div class="pane card"><p class="sh">Hybrid laptop (the built-in screen runs on the Intel or AMD processor graphics)</p>
-<p>Most gaming laptops wire the built-in screen to the graphics in the processor, so the NVIDIA card has nothing to draw it on. This installs a panel driver beside the NVIDIA driver (the Intel one on Intel graphics, the AMD one on a Ryzen with Radeon graphics): the NVIDIA card does the rendering and each finished frame goes to the screen through the processor graphics. On Ryzen laptops turn the OpenCore Fix PAT patch off first (docs/HYBRID-LAPTOPS.md); only copy is available there. <b>Copy</b> works on Intel 11th generation and newer; <b>scan out in place</b> is the faster level for 12th and 13th generation. It has not run on a hybrid laptop yet, so your Send logs are how it gets fixed. It needs the NVIDIA driver already installed and the driver package checked above.</p>
-<p>If the screen stays dark, choose <b>1401: Start once without NVIDIA driver</b> in the boot picker and turn it off here. Turning it off also takes the panel driver out again.</p>
-<p class="row"><button type="button" class="b" id="hybcopy">Turn on (copy)</button> <button type="button" class="b" id="hybimport">Turn on (scan out in place)</button> <button type="button" class="b" id="hyboff">Turn it off</button> <span id="hybstate"></span></p></div>
-<div class="pane card" id="vmdpane" hidden><p class="sh">Drives behind Intel VMD or RAID</p>
-<p>macOS can only use drives the firmware shows as plain AHCI or NVMe disks. This PC has Intel VMD or RAID storage, so its internal drives may be hidden from macOS. Two ways round it:</p>
-<p><b>Install on an external drive.</b> Plug in a USB SSD (or an SSD that is not behind VMD) and install macOS on it from the 1401 stick. The internal drive and Windows are not touched. In 1401 for Windows tick <b>Install macOS on an external drive</b> before you build.</p>
-<p><b>Turn VMD off.</b> In 1401 for Windows the build shows the BIOS path for your board and offers <b>Prepare Windows</b>, <b>Finish</b> and <b>Undo</b>: Prepare makes a restore point, pauses BitLocker and sets the standard drivers, you switch VMD off in the BIOS, Finish returns Windows to a normal start, and Undo puts every value back. These steps run on Windows only, so this app only explains them.</p></div>
-<div class="pane card" id="exppane"><p class="sh">Experimental drivers and features</p>
-<p class="row"><button id="expall" type="button">Select all</button> <button id="expnone" type="button">Deselect all</button></p>
-<p>Written and tested offline, not yet measured on every machine. Each is <b>off</b> until you tick it and press Apply, and each needs a <b>restart</b>. Untick and Apply to put things back exactly as they were; arguments you set yourself are never removed.</p>
-<p class="row"><label><input type="checkbox" class="expitem" id="exp-kbl" data-id="kbl"> <b>Keyboard backlight</b></label> Laptop keyboard backlight keys and level (the NMKbdBacklight kext). A driver OpenCore loads: an EFI built by 1401 2.9 already carries it switched off, and Apply switches it on there (on an older EFI it is copied in from the installed NVIDIA driver first). Needs VirtualSMC. Built and checked offline; it has not yet run on a laptop.</p>
-<p class="row"><label><input type="checkbox" class="expitem" id="exp-hda" data-id="hda"> <b>NVIDIA display sound with volume (macOS 15)</b></label> HDMI and DisplayPort sound from the NVIDIA card through Apple's HD Audio driver, with a working volume slider and mute (the NMHDA driver). A driver OpenCore loads, handled like the keyboard backlight. macOS 15 only: macOS 26 uses NMXAudio.</p>
-<p class="row"><label><input type="checkbox" class="expitem" id="exp-kblhid" data-id="kblhid"> <b>Keyboard backlight, HID route</b></label> The same through the HID route some laptops use. Needs the item above.</p>
-<p class="row"><label><input type="checkbox" class="expitem" id="exp-tgp" data-id="tgp"> <b>Laptop GPU power budget</b></label> Lets the NVIDIA GPU use the platform's full power limit while on mains power (Dynamic Boost); released on battery.</p>
-<p class="row"><label><input type="checkbox" class="expitem" id="exp-igpuproxy" data-id="igpuproxy"> <b>Panel on the integrated GPU</b></label> Hybrid laptops: shows the built-in screen through a proxy head when the panel is wired to the integrated GPU.</p>
-<p class="row"><label><input type="checkbox" class="expitem" id="exp-xvt" data-id="xvt"> <b>AMD / Intel video decode</b></label> AV1 and VP9 hardware decode on AMD and Intel GPUs.</p>
-<p class="row"><label><input type="checkbox" class="expitem" id="exp-hybrid20" data-id="hybrid20"> <b>Hybrid laptops: newest Intel graphics</b></label> Lets the hybrid panel driver replay a wake on Lunar Lake and Panther Lake graphics. Only matters with hybrid laptop mode on; written from Linux's display code and not yet run on that hardware.</p>
-<p class="row"><label><input type="checkbox" class="expitem" id="exp-rtd3" data-id="rtd3"> <b>Idle GPU deep sleep</b></label> Lets the NVIDIA card drop into its deepest idle power state (runtime D3) when nothing is using it. Written and tested offline; its savings and its wake-up are measured on the studio machine before it is recommended.</p>
-<p class="row"><label><input type="checkbox" class="expitem" id="exp-aspm" data-id="aspm"> <b>Idle link power saving</b></label> Asks the PCIe link between the NVIDIA card and the motherboard to rest (ASPM L1) while the card is idle, where both ends support it. Off by default: the driver leaves the link as the firmware set it, because a link that rests on a board not built for it can stall or drop the card. Turn it off again if the screen freezes when the machine is idle.</p>
-<p class="row"><label><input type="checkbox" class="expitem" id="exp-gameprio" data-id="gameprio"> <b>Game GPU priority</b></label> Raises a game's GPU priority.</p>
-<p class="row"><label><input type="checkbox" class="expitem" id="exp-hwrt" data-id="hwrt"> <b>Hardware ray queries</b></label> Ray queries on the RT cores through NullMoth's own acceleration structures.</p>
-<p class="row"><label><input type="checkbox" class="expitem" id="exp-curves" data-id="curves"> <b>Curve primitives in ray tracing</b></label> Curves in ray queries (software traversal, so slower).</p>
-<p class="row"><label><input type="checkbox" class="expitem" id="exp-tile" data-id="tile"> <b>Metal tile shading</b></label> Tile shading for apps that use it.</p>
-<p class="row"><label><input type="checkbox" class="expitem" id="exp-icb" data-id="icb"> <b>GPU-encoded command lists</b></label> Indirect command buffers written by the GPU.</p>
-<p class="row"><button type="button" class="b" id="expapply">Apply</button> <span id="expr"></span></p></div>
-<div class="pane card"><p class="sh">GPU boost</p>
-<p>Holds the NVIDIA card at its maximum clocks while this is on, for work that is limited by the GPU's idle-to-busy ramp-up. It costs power and heat, so it is off until you turn it on. It installs a small background job from the checked driver package; the package's file list is verified before anything runs as root. Turning it off stops it holding the boost; Remove takes the job off this Mac.</p>
-<p class="row"><button type="button" class="b" id="boston">Turn on</button> <button type="button" class="b" id="bostoff">Turn it off</button> <button type="button" class="b" id="bostrm">Remove the job</button> <button type="button" class="b" id="bostat">Status</button> <span id="bostr"></span></p></div>
-<div class="pane card"><p class="sh">Ryzen laptop power profile</p>
-<p>A Ryzen laptop runs at the processor's default power limits, which are loud and hot on a battery. This sets a quieter profile (by default 13 W sustained, 14 W slow, 15 W fast, 70 &deg;C; change the limits below before you turn it on) through NullMoth's RyzenAdj build. It installs a small kernel extension that can talk to the processor's power controller only after you turn this on, and a job that runs as root. It is off until you choose it.</p>
-<p>If anything goes wrong, turn it off here: that removes the job, the kernel extension and the boot setting.</p>
-<p class="row">Watts: sustained <input id="ryst" type="number" min="5" max="65" value="13" style="width:4em"> slow <input id="rysl" type="number" min="5" max="65" value="14" style="width:4em"> fast <input id="ryfa" type="number" min="5" max="65" value="15" style="width:4em"> &nbsp; Temperature limit <input id="rytm" type="number" min="50" max="100" value="70" style="width:4em"> &deg;C (watts 5 to 65, sustained at most slow at most fast; temperature 50 to 100)</p>
-<p class="row"><button type="button" class="b" id="ryzon">Turn on</button> <button type="button" class="b" id="ryzoff">Turn it off</button> <button type="button" class="b" id="ryzstat">Status</button></p></div>
-<div class="pane card"><p class="sh">AMD / Intel GPU and NPU driver (test)</p>
-<p>For the AMD and Intel GPUs macOS has no driver for (Ryzen APUs, Radeon RX 7000/9000, Intel Iris Xe and Arc graphics), and the NPU in Intel Core Ultra and AMD Ryzen AI processors. An early test build: your Send logs are how it gets fixed. It downloads only the firmware your GPU and NPU need from linux-firmware (every file checked) and takes effect at the next restart.</p>
-<p>If that GPU drives your screen, the screen can stay dark. Then choose <b>1401: Start once without NVIDIA driver</b> in the boot picker (it parks this driver too) and turn it off here.</p>
-<p class="row"><button type="button" class="b" id="gpuon">Turn the test driver on</button> <button type="button" class="b" id="gpuoff">Turn it off</button></p>
-<p><b>Test program.</b> While the test driver is on, 1401 sends a short report after every restart: the driver's kernel messages, any crash, and which GPU and build you have (names and serial numbers removed). Leave at any time.</p>
-<p class="row"><button type="button" class="b" id="teston">Join the test program</button> <button type="button" class="b" id="testoff">Leave it</button> <span id="testr"></span></p></div>
-<div class="pane card" id="xecard" hidden><p class="sh">Intel Xe graphics (WhateverXe, test)</p>
-<p>For Tiger Lake, Alder Lake and Raptor Lake Intel graphics on macOS 15.8 or 26.7 and later. It uses <a href="https://github.com/b00t0x/WhateverXe">WhateverXe</a> by b00t0x: 1401 adds it to OpenCore, you restart, then press <b>Turn it on</b> again to install its graphics package. Those parts come straight from the author's GitHub, each checked. WhateverGreen is turned off while it is on; <b>Turn it off</b> puts everything back.</p>
-<p>If the screen stays dark after the restart, choose <b>1401: Start once without NVIDIA driver</b> in the boot picker: that start also leaves WhateverXe off. Then turn it off here.</p>
-<p class="row"><button type="button" class="b" id="xeon">Turn it on</button> <button type="button" class="b" id="xeoff">Turn it off</button></p></div>
-<div class="pane card" id="gmcard"><p class="sh">Game Mode</p>
-<p>While a game is in front and full screen, this gives it the processor first, holds back background indexing and other apps' use of the graphics card, and puts everything back when you leave the game. A game controller shows in the menu bar while it is on. It stays off until you turn it on, and turning it off removes it.</p>
-<p class="row"><button type="button" class="b" id="gmon">Turn on</button> <button type="button" class="b" id="gmoff" hidden>Turn off</button> <span id="gmr" class="small"></span></p></div>
-<div class="pane card"><p class="sh">Microphone and camera</p>
-<p>With the driver installed, macOS does not ask before an app uses the microphone or camera, so apps such as Discord get silence and never appear under Privacy &amp; Security. Pick the app here to allow it the microphone, camera and screen recording.</p>
-<p class="row"><button type="button" class="b" id="tccg">Allow an app...</button> <span id="tccr"></span></p></div>
-<div class="pane card"><p class="sh">Driver settings</p>
-<p>HDR, 10-bit colour, variable refresh, colour range, scaling, surround, frame-rate limit and more, with your GPUs' link and memory facts. Every change is shown in full and asked for first.</p>
-<p class="row"><button type="button" class="b" id="settings">Open driver settings...</button></p></div>
-<div class="pane card"><p class="sh">Map my GPU (experimental)</p>
-<p>A few minutes of measurements on this Mac's GPU: what Metal reports, a correctness check, memory and compute speed, and small test shaders. Nothing is changed and no display mode is touched. The result goes in the log folder, and Send logs uploads it so the next driver can be tuned for your card.</p>
-<p class="row"><button type="button" class="b" id="gpumap">Map my GPU</button> <span id="gpumapr"></span></p></div>
-<div class="pane card" id="armcard"><p class="sh">ARM apps (opt-in)</p>
+<h1>工具</h1>
+<div class="pane card"><p class="sh">挂载 EFI</p>
+<p>EFI 分区保存着你的引导设置。1401 会找到本机启动所用的那个分区，挂载并在访达中打开它。会要求输入一次密码。</p>
+<p class="row"><button type="button" class="b go" id="efimount">挂载 EFI</button> <span id="efimountr"></span></p></div>
+<div class="pane card"><p class="sh">启动文字（verbose 模式）</p>
+<p>开机时显示 macOS 的启动过程细节，而不是只有苹果标志。排查启动卡住时有用。下次重启后生效。</p>
+<p class="row"><button type="button" class="b" id="vbon">开启 verbose 模式</button> <button type="button" class="b" id="vboff">关闭 verbose 模式</button></p></div>
+<div class="pane card"><p class="sh">内建屏幕亮度（笔记本）</p>
+<p>适用于内屏直连 NVIDIA GPU 的笔记本（MUX 已设为 Discrete 或 dGPU）。开启后驱动可从笔记本固件读取面板的亮度控制。默认关闭，因为该调用曾导致部分机器在 GPU 启动时卡住；如果你也卡在那里，请在启动菜单选 <b>1401: Start once without NVIDIA driver</b>，然后在这里把它关掉。</p>
+<p class="row"><button type="button" class="b" id="blon">开启亮度控制</button> <button type="button" class="b" id="bloff">关闭亮度控制</button></p></div>
+<div class="pane card"><p class="sh">HiDPI（Retina）分辨率模式</p>
+<p>让 HiDPI「看起来像」分辨率可用，例如在 2560x1440 屏上使用 1920x1080，包括用 BetterDisplay 等工具添加的自定义分辨率。不开启时这类分辨率会被拒绝并弹回。开启后驱动会以最高两倍于屏幕的尺寸绘制桌面，会占用更多显存。下次重启后生效。</p>
+<p class="row"><button type="button" class="b" id="hdon">开启 HiDPI 模式</button> <button type="button" class="b" id="hdoff">关闭 HiDPI 模式</button></p></div>
+<div class="pane card" id="autologin" hidden><p class="sh">自动登录</p>
+<p>驱动缺失期间，1401 开启了自动登录以便本机能进入桌面。这会把你的密码以可被任何能读取磁盘的人还原的形式存储。驱动正常工作后，请关闭它。</p>
+<p class="row"><button type="button" class="b" id="autologinoff">关闭自动登录</button></p></div>
+<div class="pane card"><p class="sh">混合输出笔记本（内屏由 Intel 或 AMD 处理器显卡驱动）</p>
+<p>多数游戏笔记本把内屏接在处理器显卡上，NVIDIA 卡没有可绘制的屏幕。此功能会在 NVIDIA 驱动旁安装一个面板驱动（Intel 显卡用 Intel 版，带 Radeon 显卡的 Ryzen 用 AMD 版）：NVIDIA 负责渲染，渲染完的每一帧经处理器显卡送到屏幕。Ryzen 笔记本需先关闭 OpenCore 的 Fix PAT 补丁（见 docs/HYBRID-LAPTOPS.md，仅英文版）。<b>复制（copy）</b>方式适用于 Intel 第 11 代及更新；<b>原位扫描输出（scan out in place）</b>是第 12、13 代上更快的等级。此功能尚未在混合输出笔记本上实测，你的「发送日志」就是帮它完善的方式。它需要 NVIDIA 驱动已安装，且上方已校验驱动包。</p>
+<p>如果屏幕保持黑屏，请在启动菜单选 <b>1401: Start once without NVIDIA driver</b>，然后在这里关闭。关闭时会一并移除面板驱动。</p>
+<p class="row"><button type="button" class="b" id="hybcopy">开启（复制方式）</button> <button type="button" class="b" id="hybimport">开启（原位扫描输出）</button> <button type="button" class="b" id="hyboff">关闭</button> <span id="hybstate"></span></p></div>
+<div class="pane card" id="vmdpane" hidden><p class="sh">位于 Intel VMD 或 RAID 之后的硬盘</p>
+<p>macOS 只能使用固件以普通 AHCI 或 NVMe 磁盘形式呈现的硬盘。这台机器使用 Intel VMD 或 RAID 存储控制器，内置硬盘可能因此对 macOS 隐藏。两种绕过办法：</p>
+<p><b>安装到外置硬盘。</b> 插上 USB SSD（或不在 VMD 之后的 SSD），从 1401 U 盘把 macOS 装上去。内置硬盘和 Windows 不会被动到。在 1401 for Windows 中，构建前勾选 <b>Install macOS on an external drive</b>。</p>
+<p><b>关闭 VMD。</b> 1401 for Windows 在构建时会显示你主板的 BIOS 设置路径，并提供 <b>Prepare Windows</b>、<b>Finish</b> 和 <b>Undo</b> 三个选项：Prepare 创建还原点、暂停 BitLocker 并设置标准驱动；随后你在 BIOS 中关闭 VMD；Finish 让 Windows 恢复正常启动；Undo 把每个值改回原样。这些步骤只能在 Windows 上执行，所以本应用只作说明。</p></div>
+<div class="pane card" id="exppane"><p class="sh">实验性驱动与功能</p>
+<p class="row"><button id="expall" type="button">全选</button> <button id="expnone" type="button">全不选</button></p>
+<p>均为离线编写与测试，尚未在所有机型上验证。每一项在勾选并点击「应用」前都保持<b>关闭</b>，且都需要<b>重启</b>。取消勾选再点「应用」即可完全还原；你自己手动设置的参数永远不会被移除。</p>
+<p class="small">每一项具体做什么、开启后会有什么影响、哪些不建议开，见左侧栏「使用说明」→ <b>六、实验性驱动与功能</b>。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-kbl" data-id="kbl"> <b>键盘背光</b></label> 笔记本键盘背光按键与亮度调节（NMKbdBacklight kext）。由 OpenCore 加载的驱动：1401 2.9 构建的 EFI 已自带且默认关闭，「应用」会将其开启（旧 EFI 会先从已装的 NVIDIA 驱动中复制进来）。需要 VirtualSMC。离线构建与校验；尚未在笔记本上实测。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-hda" data-id="hda"> <b>NVIDIA 显示音频（含音量控制，macOS 15）</b></label> 来自 NVIDIA 卡的 HDMI / DisplayPort 音频，经 Apple HD Audio 驱动输出，音量滑块和静音可用（NMHDA 驱动）。由 OpenCore 加载，管理方式同键盘背光。仅限 macOS 15：macOS 26 使用 NMXAudio。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-kblhid" data-id="kblhid"> <b>键盘背光（HID 通道）</b></label> 走部分笔记本使用的 HID 通道，功能相同。需先开启上一项。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-tgp" data-id="tgp"> <b>笔记本 GPU 功耗上限</b></label> 接电源时允许 NVIDIA GPU 使用平台完整功耗上限（Dynamic Boost）；用电池时自动释放。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-igpuproxy" data-id="igpuproxy"> <b>内屏走核显</b></label> 混合输出笔记本：当面板接在核显上时，通过代理显示头呈现内屏。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-xvt" data-id="xvt"> <b>AMD / Intel 视频解码</b></label> AMD 和 Intel GPU 上的 AV1 与 VP9 硬件解码。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-hybrid20" data-id="hybrid20"> <b>混合输出笔记本：最新 Intel 显卡</b></label> 让混合面板驱动在 Lunar Lake 与 Panther Lake 显卡上正常唤醒。仅在混合笔记本模式开启时有关；依据 Linux 显示代码编写，尚未在该硬件上运行。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-rtd3" data-id="rtd3"> <b>空闲 GPU 深度休眠</b></label> 空闲时让 NVIDIA 卡进入最深省电状态（runtime D3）。离线编写与测试；其功耗收益和唤醒表现在推荐前会先在工作室机器上测量。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-aspm" data-id="aspm"> <b>空闲链路省电</b></label> 卡空闲时让 NVIDIA 卡与主板间的 PCIe 链路进入休眠（ASPM L1），两端都支持时才生效。默认关闭：驱动会保持固件设定的链路状态，因为在未针对此设计的主板上链路休眠可能导致卡死或掉卡。如果空闲时屏幕冻结，请把这项关掉。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-gameprio" data-id="gameprio"> <b>游戏 GPU 优先级</b></label> 提升游戏的 GPU 调度优先级。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-hwrt" data-id="hwrt"> <b>硬件光线查询</b></label> 通过 NullMoth 自己的加速结构在 RT 核心上执行光线查询。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-curves" data-id="curves"> <b>光线追踪中的曲线图元</b></label> 光线查询中支持曲线（软件遍历，速度较慢）。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-tile" data-id="tile"> <b>Metal 瓦片着色</b></label> 为使用该特性的应用启用瓦片着色。</p>
+<p class="row"><label><input type="checkbox" class="expitem" id="exp-icb" data-id="icb"> <b>GPU 编码的命令列表</b></label> 由 GPU 写入的间接命令缓冲。</p>
+<p class="row"><button type="button" class="b" id="expapply">应用</button> <span id="expr"></span></p></div>
+<div class="pane card"><p class="sh">GPU 加速（boost）</p>
+<p>开启期间将 NVIDIA 卡锁定在最高频率，适合受 GPU 空闲到繁忙爬升限制的工作负载。代价是功耗和发热，所以在你手动开启前保持关闭。它会从已校验的驱动包安装一个小型后台任务；任何以 root 运行的内容之前都会先校验包内文件清单。关闭即停止锁频；「移除」则把任务从本机删掉。</p>
+<p class="row"><button type="button" class="b" id="boston">开启</button> <button type="button" class="b" id="bostoff">关闭</button> <button type="button" class="b" id="bostrm">移除任务</button> <button type="button" class="b" id="bostat">状态</button> <span id="bostr"></span></p></div>
+<div class="pane card"><p class="sh">Ryzen 笔记本功耗配置</p>
+<p>Ryzen 笔记本默认按处理器出厂功耗上限运行，用电池时又吵又热。此功能通过 NullMoth 的 RyzenAdj 构建设置一组更安静的配置（默认持续 13 W、慢速 14 W、快速 15 W、70 &deg;C；开启前可在下方修改数值）。它会安装一个只有在开启后才能与处理器电源控制器通信的小内核扩展，以及一个以 root 运行的任务。在你选择开启前保持关闭。</p>
+<p>如遇异常，在这里关闭即可：这会移除后台任务、内核扩展和引导设置。</p>
+<p class="row">瓦数：持续 <input id="ryst" type="number" min="5" max="65" value="13" style="width:4em"> 慢速 <input id="rysl" type="number" min="5" max="65" value="14" style="width:4em"> 快速 <input id="ryfa" type="number" min="5" max="65" value="15" style="width:4em"> &nbsp; 温度上限 <input id="rytm" type="number" min="50" max="100" value="70" style="width:4em"> &deg;C（瓦数 5–65，持续 ≤ 慢速 ≤ 快速；温度 50–100）</p>
+<p class="row"><button type="button" class="b" id="ryzon">开启</button> <button type="button" class="b" id="ryzoff">关闭</button> <button type="button" class="b" id="ryzstat">状态</button></p></div>
+<div class="pane card"><p class="sh">AMD / Intel GPU 与 NPU 驱动（测试版）</p>
+<p>适用于 macOS 没有驱动的 AMD 和 Intel GPU（Ryzen APU、Radeon RX 7000/9000、Intel Iris Xe 与 Arc 显卡），以及 Intel Core Ultra 和 AMD Ryzen AI 处理器中的 NPU。早期测试版本：你的「发送日志」就是帮它完善的方式。它只从 linux-firmware 下载你的 GPU 和 NPU 所需的固件（逐个文件校验），下次重启后生效。</p>
+<p>如果这块 GPU 正在驱动你的屏幕，屏幕可能保持黑屏。此时请在启动菜单选 <b>1401: Start once without NVIDIA driver</b>（它也会挂起这个驱动），然后在这里关闭。</p>
+<p class="row"><button type="button" class="b" id="gpuon">开启测试驱动</button> <button type="button" class="b" id="gpuoff">关闭测试驱动</button></p>
+<p><b>测试计划。</b> 测试驱动开启期间，每次重启后 1401 会发送一份简短报告：驱动的内核消息、崩溃记录（如有）以及你的 GPU 和构建版本（已去除名称与序列号）。可随时退出。</p>
+<p class="row"><button type="button" class="b" id="teston">加入测试计划</button> <button type="button" class="b" id="testoff">退出测试计划</button> <span id="testr"></span></p></div>
+<div class="pane card" id="xecard" hidden><p class="sh">Intel Xe 显卡（WhateverXe，测试版）</p>
+<p>适用于 macOS 15.8 或 26.7 及以上版本的 Tiger Lake、Alder Lake 和 Raptor Lake Intel 显卡。使用 b00t0x 的 <a href="https://github.com/b00t0x/WhateverXe">WhateverXe</a>：1401 把它加入 OpenCore，你重启后再次点击 <b>开启</b> 即可安装其显卡组件包。组件直接来自作者的 GitHub，逐个校验。开启期间 WhateverGreen 会被停用；<b>关闭</b>会还原所有改动。</p>
+<p>如果重启后屏幕保持黑屏，请在启动菜单选 <b>1401: Start once without NVIDIA driver</b>：该次启动同样会停用 WhateverXe。然后在这里关闭。</p>
+<p class="row"><button type="button" class="b" id="xeon">开启</button> <button type="button" class="b" id="xeoff">关闭</button></p></div>
+<div class="pane card" id="gmcard"><p class="sh">游戏模式</p>
+<p>当游戏位于前台并全屏时，优先把处理器让给游戏、限制后台索引和其他应用占用显卡，退出游戏后全部还原。开启期间菜单栏会出现一个手柄图标。开启前保持关闭，关闭即移除。</p>
+<p class="row"><button type="button" class="b" id="gmon">开启</button> <button type="button" class="b" id="gmoff" hidden>关闭</button> <span id="gmr" class="small"></span></p></div>
+<div class="pane card"><p class="sh">麦克风与摄像头</p>
+<p>装上驱动后，macOS 不会在应用使用麦克风或摄像头前征询许可，导致 Discord 之类的应用只收到静音，也从不出现在「隐私与安全性」里。在这里选择应用，授权其使用麦克风、摄像头和屏幕录制。</p>
+<p class="row"><button type="button" class="b" id="tccg">选择应用并授权...</button> <span id="tccr"></span></p></div>
+<div class="pane card"><p class="sh">驱动设置</p>
+<p>HDR、10-bit 色彩、可变刷新率、色彩范围、缩放、环绕、帧率限制等设置，并显示 GPU 的链路与显存信息。每处改动都会完整展示并先征得确认。</p>
+<p class="row"><button type="button" class="b" id="settings">打开驱动设置...</button></p></div>
+<div class="pane card"><p class="sh">GPU 画像（实验性）</p>
+<p>对本机 GPU 进行几分钟的测量：Metal 报告了什么、正确性检查、显存与算力速度，以及若干测试着色器。不改动任何东西，也不触碰显示模式。结果保存在日志文件夹，「发送日志」会一并上传，让下一版驱动能针对你的显卡调优。</p>
+<p class="row"><button type="button" class="b" id="gpumap">测量我的 GPU</button> <span id="gpumapr"></span></p></div>
+<div class="pane card" id="armcard"><p class="sh">ARM 应用（自愿开启）</p>
 <div id="armreq" hidden><p><b id="armreqt"></b></p>
-<p class="row"><button type="button" class="b go" id="armreqon" hidden>Turn on</button> <a href="#" id="armreqno">Not now</a></p></div>
-<p>Apps built only for Apple silicon can be translated to run on this Mac. An iPhone or iPad app you built yourself (an .ipa that is not App Store encrypted) is first made into a Mac app, then translated. Translation takes minutes for a small app and up to an hour or more for a big one. The original app is never changed: the translated copy goes to Applications &gt; NullMoth ARM. Turning this off removes the translator and the translated copies, and your 2.7 driver keeps working.</p>
-<p class="row"><button type="button" class="b" id="armon">Turn on</button> <button type="button" class="b" id="armoff" hidden>Turn off</button> <button type="button" class="b" id="armchk" hidden>Check this Mac</button> <button type="button" class="b" id="armclt" hidden>Install Command Line Tools</button> <button type="button" class="b go" id="armtr" hidden disabled>Translate an app...</button></p>
+<p class="row"><button type="button" class="b go" id="armreqon" hidden>开启</button> <a href="#" id="armreqno">暂不</a></p></div>
+<p>仅面向 Apple 芯片构建的应用可以被转译后在本机上运行。你自己开发的 iPhone / iPad 应用（未经 App Store 加密的 .ipa）会先打包成 Mac 应用再转译。小应用转译需几分钟，大应用可能要一小时以上。原应用永不改动：转译副本放在「应用程序 &gt; NullMoth ARM」。关闭此功能会移除转译器和已转译副本，你的 2.7 驱动照常工作。</p>
+<p class="row"><button type="button" class="b" id="armon">开启</button> <button type="button" class="b" id="armoff" hidden>关闭</button> <button type="button" class="b" id="armchk" hidden>检查本机</button> <button type="button" class="b" id="armclt" hidden>安装命令行工具</button> <button type="button" class="b go" id="armtr" hidden disabled>转译应用...</button> <button type="button" class="b" id="armfolder">打开转译文件夹</button></p>
 <p id="armr"></p>
 <div id="armprog" hidden><progress id="armbar" max="100" style="width:100%"></progress>
-<p class="row"><span id="armmsg" class="small"></span> <button type="button" class="b" id="armcancel">Cancel</button></p></div>
+<p class="row"><span id="armmsg" class="small"></span> <button type="button" class="b" id="armcancel">取消</button></p></div>
 <div id="armapps"></div>
 <div id="armbrew" hidden><p><b>Homebrew</b></p>
-<p class="small">Two Homebrews side by side, as on a Mac with Apple silicon: the ARM one in /opt/homebrew installs Homebrew's Apple-silicon packages and translates them for this Mac; the Intel one in /usr/local runs natively but mostly builds from source, because Homebrew stopped publishing Intel packages. In Terminal, <code>abrew</code> is always ARM, <code>ibrew</code> always Intel, and <code>brew</code> is the one you pick here.</p>
-<p class="row"><select id="armbrewpick"><option value="both">ARM and Intel</option><option value="arm">ARM only (/opt/homebrew)</option><option value="intel">Intel only (/usr/local)</option></select> <select id="armbrewprim"><option value="arm">brew = ARM</option><option value="intel">brew = Intel</option></select> <button type="button" class="b" id="armbrewgo">Set up Homebrew</button></p>
+<p class="small">两套 Homebrew 并存，和 Apple 芯片 Mac 一样：ARM 版在 /opt/homebrew，安装 Homebrew 的 Apple 芯片包并为本机转译；Intel 版在 /usr/local，原生运行但多数从源码构建，因为 Homebrew 已停止发布 Intel 包。在终端里，<code>abrew</code> 永远是 ARM，<code>ibrew</code> 永远是 Intel，<code>brew</code> 则由你在下面选择。</p>
+<p class="row"><select id="armbrewpick"><option value="both">ARM 和 Intel</option><option value="arm">仅 ARM (/opt/homebrew)</option><option value="intel">仅 Intel (/usr/local)</option></select> <select id="armbrewprim"><option value="arm">brew = ARM</option><option value="intel">brew = Intel</option></select> <button type="button" class="b" id="armbrewgo">设置 Homebrew</button></p>
 <p id="armbrewr" class="small"></p></div></div>
 </section>
 
 <section id="t-usb" hidden>
-<h1>USB ports</h1>
-<div class="pane card"><p class="sh">Map your USB ports</p>
-<p>macOS only uses 15 ports per USB controller and has no idea which ones your case actually has. 1401 watches the ports while you plug things in, then writes a map for the ports you select. Test them again after restarting, including USB-C both ways round and wake from sleep.</p>
+<h1>USB 端口</h1>
+<div class="pane card"><p class="sh">映射你的 USB 端口</p>
+<p>macOS 每个 USB 控制器最多只用 15 个端口，也不知道你的机箱实际有哪几个。1401 会在你插设备时观察端口，然后为你选中的端口写入映射表。重启后请再次测试，包括 USB-C 正反两个方向和睡眠唤醒。</p>
 <ol class="todo">
-<li><b>Start watching.</b> <button type="button" class="b go" id="uw">Start</button></li>
-<li><b>Plug something into each port you use, one at a time.</b> A USB 3 stick is best; do each USB-C port both ways round. A port turns <span class="good">green</span> when 1401 sees it.</li>
-<li><b>Check the list</b>, pick the plug type for each port, and <button type="button" class="b go" id="uwr">Write the map</button> (macOS asks for your password; your OpenCore config is backed up first).</li>
+<li><b>开始观察。</b> <button type="button" class="b go" id="uw">开始</button></li>
+<li><b>把你用的每个端口逐个插上设备。</b> USB 3 U 盘最理想；USB-C 口正反各插一次。1401 看到某个端口时它会变<span class="good">绿色</span>。</li>
+<li><b>检查列表</b>，为每个端口选择插头类型，然后 <button type="button" class="b go" id="uwr">写入映射表</button>（macOS 会要求输入密码；你的 OpenCore 配置会先被备份）。</li>
 </ol>
 <p id="uerr" class="bad"></p></div>
 <div id="ports"></div>
 </section>
 
 <section id="t-crash" hidden>
-<h1>Something still wrong?</h1>
-<div class="pane card"><p class="sh">Send logs</p>
-<p>1401 sends what it did, the driver's state, crash reports, OpenCore's startup logs and a numeric device map, with names, serial numbers and addresses removed. You get a report ID to post in the NullMoth Discord.</p>
-<p class="small">If the driver could not translate a shader, up to 24 of those shaders (at most 4 MB, from the apps you ran) are attached so the failure can be reproduced. They are sent only when you press the button. To stop the driver keeping them, create the empty file /Library/GPUBundles/nvmtl/no-failed-air.</p>
-<p class="row"><button type="button" class="b go" id="sl">Send logs to NullMoth</button> <button type="button" class="b" id="fl">Record the flicker</button></p>
-<p class="small">Record the flicker: press it while the screen flickers. 1401 records 20 seconds of how the driver puts frames on the display and sends it with your logs.</p>
+<h1>还有问题？</h1>
+<div class="pane card"><p class="sh">发送日志</p>
+<p>1401 会发送它做过的操作、驱动状态、崩溃报告、OpenCore 启动日志和数值化设备映射，并已去除名称、序列号和地址。你会得到一个报告 ID，可贴到 NullMoth Discord 求助。</p>
+<p class="small">如果驱动无法转译某个着色器，最多 24 个这样的着色器（每个包最多 4 MB，来自你运行过的应用）会随报告附上，以便复现问题。只有你按下按钮才会发送。不想让驱动保留它们，可创建空文件 /Library/GPUBundles/nvmtl/no-failed-air。</p>
+<p class="row"><button type="button" class="b go" id="sl">向 NullMoth 发送日志</button> <button type="button" class="b" id="fl">记录闪烁</button></p>
+<p class="small">记录闪烁：屏幕闪烁时按下它。1401 会记录 20 秒驱动向显示器送帧的过程，并随日志一起发送。</p>
 <p id="slr"></p></div>
-<div class="pane card"><p class="sh">Crash report</p>
-<p>If the driver ever crashes this Mac, 1401 asks at the next login whether to make a report. It is a text file on your Desktop with your hardware and what failed, with your name, your Mac's name, serial numbers, addresses and file paths taken out. <b>1401 never sends it by itself.</b></p>
+<div class="pane card"><p class="sh">崩溃报告</p>
+<p>如果驱动导致本机崩溃，1401 会在下次登录时询问是否生成报告。它是你桌面上的一份文本文件，包含硬件信息和故障详情，且已去除你的姓名、Mac 名称、序列号、地址和文件路径。<b>1401 绝不会自行发送它。</b></p>
 <p id="cr"></p>
-<p class="row"><button type="button" class="b" id="mk">Make a report</button> <button type="button" class="b" id="up">Open the upload page</button> <button type="button" class="b" id="cf">Buy me a coffee</button> <button type="button" class="b" id="cr">Credits</button></p></div>
-<div class="pane card"><p class="sh">Optional diagnostics</p>
-<p>Capture is unavailable in this version. Send logs still collects hardware, kernel and panic evidence. No security settings have changed.</p>
-<p class="row"><button type="button" class="b" id="od">Check optional diagnostics</button> <button type="button" class="b" id="dr">Import saved receipt</button></p>
-<p class="small">Checking availability starts no trace. A saved receipt needs its own session upload permission and a separate Send logs confirmation.</p>
+<p class="row"><button type="button" class="b" id="mk">生成报告</button> <button type="button" class="b" id="up">打开上传页面</button> <button type="button" class="b" id="cf">请作者喝咖啡</button> <button type="button" class="b" id="cr">致谢名单</button></p></div>
+<div class="pane card"><p class="sh">可选诊断</p>
+<p>此版本中捕获功能不可用。「发送日志」仍会收集硬件、内核与恐慌（panic）证据。安全设置没有任何变化。</p>
+<p class="row"><button type="button" class="b" id="od">检查可选诊断</button> <button type="button" class="b" id="dr">导入已保存的凭据回执</button></p>
+<p class="small">检查可用性不会启动任何采集。已保存的回执需要其独立的会话上传权限和一次单独的「发送日志」确认。</p>
 <p id="odr"></p><p id="drr"></p></div>
-<p class="legal">© 2026 NullMoth Systems. NullMoth and the moth logo are trademarks of NullMoth Systems.</p>
+<p class="legal">© 2026 NullMoth Systems. NullMoth 和飞蛾标志是 NullMoth Systems 的商标。</p>
+</section>
+
+
+<section id="t-ailog" hidden>
+<h1>AI 日志解析</h1>
+<p class="lede">把 -v 启动日志、panic 崩溃日志、OpenCore 日志或 1401 运行日志贴进来，先做离线中文诊断；需要更深的分析再交给 AI。日志默认不会离开这台电脑。</p>
+
+<div class="pane card" id="aidrop">
+<p class="sh">一、导入日志</p>
+<p class="small">支持直接粘贴、拖进本页，或选择 .log / .txt / .ips / .panic 文件（可多选）。点「打开日志文件夹」能找到 1401 自己生成的日志。本地解析完全离线，不联网、不上传。</p>
+<textarea id="aiinput" class="ai-in" spellcheck="false" placeholder="在这里粘贴日志…&#10;例如 -v 启动滚屏文字、崩溃报告 .ips 内容、log show 输出、1401 四步安装日志"></textarea>
+<div class="row ai-gap">
+<button type="button" class="b" id="aifilebtn">选择日志文件</button>
+<input type="file" id="aifile" class="ai-hide" multiple accept=".log,.txt,.text,.ips,.panic,.json,.rtf">
+<button type="button" class="b go" id="airun">本地智能解析</button>
+<button type="button" class="b" id="aiexample">载入示例</button>
+<button type="button" class="b" id="ailogsfolder">复制日志目录路径</button>
+<button type="button" class="b" id="aiclear">清空</button>
+<span class="small" id="aistat">尚未导入日志</span>
+</div>
+</div>
+
+<div class="pane card">
+<p class="sh">二、交给 AI 深度分析（可选）</p>
+<p class="small"><b>方式 A</b>：填好接口后点「AI 深度分析」，把日志和本地诊断摘要一起发给大模型。<b>方式 B（推荐，任何环境都能用）</b>：点「复制 AI 提示词」，再点「打开 AI 网页」粘贴进去。密钥只保存在本机，不经过 NullMoth，日志也不会自动上传。</p>
+<details class="ai-det" id="aicfg">
+<summary>接口设置（点开填写）</summary>
+<div class="ai-form">
+<label class="ai-lb">服务商预设<select id="aipreset" class="ai-fld">
+<option value="deepseek">DeepSeek</option>
+<option value="qwen">通义千问（兼容模式）</option>
+<option value="moonshot">Moonshot / Kimi</option>
+<option value="openai">OpenAI</option>
+<option value="ollama">本机 Ollama</option>
+<option value="custom">自定义</option>
+</select></label>
+<label class="ai-lb">接口地址（OpenAI 兼容 /v1）<input id="aibase" class="ai-fld" type="text" spellcheck="false" placeholder="https://api.deepseek.com/v1"></label>
+<label class="ai-lb">模型名称<input id="aimodel" class="ai-fld" type="text" spellcheck="false" placeholder="deepseek-chat"></label>
+<label class="ai-lb">API Key（本机 Ollama 可留空）<input id="aikey" class="ai-fld" type="password" spellcheck="false" placeholder="sk-..."></label>
+<label class="ai-lb">AI 网页（用于粘贴提示词）<input id="aisite" class="ai-fld" type="text" spellcheck="false" placeholder="https://chat.deepseek.com/"></label>
+</div>
+<div class="row ai-gap">
+<button type="button" class="b" id="aisavecfg">保存设置</button>
+<button type="button" class="b" id="aiclearcfg">清除设置</button>
+</div>
+<p class="small ai-gap">本机 Ollama 用 <code>http://127.0.0.1:11434/v1</code>；若被跨域拦截，可在 Mac 上设置 <code>OLLAMA_ORIGINS=*</code> 后重启 Ollama。多数云端大模型不允许从本地网页直连，遇到 CORS 报错请改用「复制 AI 提示词」。</p>
+</details>
+<div class="row ai-gap">
+<button type="button" class="b go" id="aiai">AI 深度分析</button>
+<button type="button" class="b" id="aicopy">复制 AI 提示词</button>
+<button type="button" class="b" id="aiopen">打开 AI 网页</button>
+<span class="small" id="aiapistat">未配置接口也能用「复制 AI 提示词」。</span>
+</div>
+</div>
+
+<div class="pane card" id="airesultcard" hidden>
+<p class="sh">三、分析结果</p>
+<div id="aiout"><div id="aianswer"></div><div id="ailocal"></div></div>
+</div>
+
+<p class="small">本地规则库覆盖 panic、Lilu / kext、签名校验、显卡屏蔽、Optimus、ACPI、OpenCore、下载与权限等 20 多类常见问题，只作排障提示，不是官方诊断。改动 EFI 前务必备份，并保留 -v。</p>
+</section>
+
+<section id="t-help" hidden>
+<h1>使用说明</h1>
+<p class="lede">1401 中文汉化版 · 对应官方 v2.9。原有功能与官方一致，另新增「使用说明」与「AI 日志解析」两个汉化版专属页面；本页可随时回来查看。</p>
+
+<div class="pane card"><p class="sh">一、这是什么</p>
+<p>1401 是 NullMoth 官方提供的工具，用来在 OpenCore 黑苹果上安装、更新和移除 NVIDIA（NullMoth）驱动，适用 macOS 15.5 及以上（含 macOS 26 Tahoe）。</p>
+<p class="small">本包不含驱动本体：驱动由 app 运行时从官方源下载并对照官方 SHA-256 校验。汉化范围包括主界面五个页面、驱动设置窗口 19 项设置、27 条 EFI 检查规则、窗口标题与全部提示；不触碰驱动、kext、EFI 内容。</p>
+<p class="small">许可证 PolyForm Noncommercial 1.0.0，仅供非商业用途免费使用，与 NullMoth 官方无隶属关系。</p></div>
+
+<div class="pane card"><p class="sh">二、第一次打开</p>
+<p class="todo"><ol>
+<li>把 1401汉化.app 拖进「应用程序」文件夹。</li>
+<li>首次打开提示「无法验证开发者」时，右键点 app → 打开；或到 系统设置 → 隐私与安全性 点「仍要打开」。</li>
+<li><b>动手之前先备份 EFI</b>：到「工具 · 挂载 EFI」挂载引导分区，把整个 EFI 文件夹复制到 U 盘。</li>
+<li>保持引导本机启动的 U 盘或硬盘（OpenCore 所在盘）始终插在电脑上，1401 要改的就是那上面的配置。</li>
+</ol></p></div>
+
+<div class="pane card"><p class="sh">三、主界面五个页面</p>
+<table class="pc"><tbody>
+<tr><th>本机</th><td>硬件检测、驱动安装四步、更新检查、实验性功能</td></tr>
+<tr><th>问题检查</th><td>按 27 条规则检查 EFI / config.plist，逐条给出修复步骤</td></tr>
+<tr><th>工具 · 挂载 EFI</th><td>挂载 EFI 分区、选择 config.plist、打开日志文件夹</td></tr>
+<tr><th>USB 端口</th><td>查看并定制 USB 端口映射</td></tr>
+<tr><th>发送报告</th><td>收集日志发给官方（自愿，不点不发）</td></tr>
+</tbody></table></div>
+
+<div class="pane card"><p class="sh">四、驱动安装四步（「本机」页）</p>
+<p class="todo"><ol>
+<li><b>获取驱动</b> —— 下载官方驱动包并校验哈希。</li>
+<li><b>先看清楚再动手</b> —— 列出每一处将改动的内容，此步不写入任何东西。</li>
+<li><b>安装</b> —— 自动备份 OpenCore 配置，只执行清单内改动，并在启动菜单加入 1401: Remove NVIDIA driver。</li>
+<li><b>重启</b> —— 若系统提示扩展被阻止，到 系统设置 → 隐私与安全性 点「允许」，再重启一次。</li>
+</ol></p></div>
+
+<div class="pane card"><p class="sh">五、驱动设置窗口</p>
+<p>共 19 项，分「显示」「性能」两组。</p>
+<p class="small"><b>显示</b>：HDR10、10 位色深、可变刷新率、输出色深 / 颜色格式 / 动态范围、数字振动、动态超级分辨率、HiDPI 模式、旋转缩放、环视多屏、笔记本面板亮度。</p>
+<p class="small"><b>性能</b>：帧率上限、低延迟模式、着色器缓存上限、多张 N 卡、为应用指定显卡、内置按应用配置、系统内存保留。</p>
+<p class="small">每项改动都会先展示将要写入的内容并请求确认。下拉选「默认」即交给驱动自行决定；<b>显示类设置属于引导参数，重启后生效</b>。不确定时保持「默认」最安全。</p></div>
+<div class="pane card"><p class="sh">六、实验性驱动与功能（逐项说明）</p>
+<p>位置：「本机」页往下拉，共 <b>14 个复选框</b>，上方是「全选 / 全不选」，底部是「应用」。官方明确说明：这些功能<b>均为离线编写与测试，尚未在所有机型上验证</b>，因此默认全部关闭。开启它们等于主动替官方做实机测试。</p>
+<p class="todo"><ol>
+<li><b>先备份 EFI</b>（见第二节），并确保能进入 OpenCore 启动菜单。</li>
+<li><b>一次只勾一项</b>，然后点「应用」（需要管理员密码）。「全选 / 全不选」<b>只改变勾选框</b>，不点「应用」不会写入任何东西。</li>
+<li><b>重启才生效</b>。重启后确认内屏、外接屏、睡眠唤醒、常用软件都正常，再考虑开下一项。</li>
+<li>有异常就把勾取消、再点一次「应用」并重启，即可<b>完全还原</b>；你自己手动设置的参数永远不会被移除。</li>
+</ol></p>
+<p><b>点「应用」后改了什么</b>：把选中的标志写入 <code>/Library/NullMoth/experimental</code>（例如 <code>ON=igpuproxy</code>），驱动启动时读取；键盘背光、显示音频这类还会让 OpenCore 注入对应 kext，个别项会往 boot-args 追加参数（「内屏走核显」对应 <code>nvfbigpu=1</code>）。想确认当前开了哪些，直接查看这个文件即可。</p>
+<p class="small"><b>风险</b>：这些开关直接改动驱动的电源管理、显示路径与 Metal 功能实现，最坏情况是黑屏、屏幕冻结、卡死或驱动加载失败。所以务必保留 <b>-v</b> 启动参数，别一次全开——多项叠加出问题就无法定位是谁导致的。<b>不建议点「全选」。</b></p>
+</div>
+
+<div class="pane card"><p class="sh">六 · A　笔记本与显示相关（6 项）</p>
+<table class="pc"><tbody>
+<tr><th>内屏走核显<br>igpuproxy</th><td>混合输出笔记本的内屏物理接在核显 / 集显上，开启后驱动用「代理显示头」把内屏呈现出来，内屏才有画面。<br><b>建议</b>：内屏接核显的双显卡笔记本（Optimus 机型）<b>应保持开启</b>；台式机、内屏直连 N 卡的机器不用开。这项通常还会追加 <code>nvfbigpu=1</code> 引导参数，因此属于会动 EFI 的项目。</td></tr>
+<tr><th>键盘背光<br>kbl</th><td>让亮度按键调节笔记本键盘背光（NMKbdBacklight kext）。点「应用」会让 OpenCore 启用这个原本默认关闭的 kext，需要 VirtualSMC；2.9 构建的 EFI 已自带，旧 EFI 会从已装驱动里复制。<br><b>建议</b>：<b>可以试但别抱期待</b>——官方注明「尚未在笔记本上实测」，不同品牌的背光由 EC / 厂商固件控制，很可能无效或让亮度键行为异常。要开就单独开这一项验证。</td></tr>
+<tr><th>键盘背光（HID 通道）<br>kblhid</th><td>部分笔记本的背光走 HID 通道，作用与上一项相同，<b>必须先开启「键盘背光」</b>才有效。<br><b>建议</b>：只在「键盘背光」开了却没反应时再试；单开它无效。</td></tr>
+<tr><th>NVIDIA 显示音频<br>hda</th><td>把 N 卡的 HDMI / DisplayPort 音频交给 Apple HD Audio 驱动输出，音量滑块与静音可用（NMHDA kext，由 OpenCore 加载）。<b>仅限 macOS 15</b>；macOS 26 改用 NMXAudio。<br><b>建议</b>：只有在 macOS 15 且确实要把声音从外接显示器 / 功放输出时才有意义；macOS 26 用户<b>不用开</b>，没接 HDMI/DP 也不用开。</td></tr>
+<tr><th>笔记本 GPU 功耗上限<br>tgp</th><td>接电源时允许 N 卡跑满平台完整功耗上限（Dynamic Boost），用电池时自动放开限制。<br><b>建议</b>：接电源玩游戏 / 跑渲染<b>可以试</b>，换来更高帧率，代价是功耗与发热上升、风扇更响；只在意续航就别开。</td></tr>
+<tr><th>混合输出笔记本：<br>最新 Intel 显卡<br>hybrid20</th><td>让混合面板驱动在 Lunar Lake / Panther Lake 这些新 Intel 核显上正常唤醒；仅在混合笔记本模式开启时有关，代码依据 Linux 显示驱动编写，官方注明尚未在该硬件上跑过。<br><b>建议</b>：<b>只有这些新 Intel 平台才适用</b>；AMD 平台、老 Intel 核显、台式机开了也没用，别开。</td></tr>
+</tbody></table></div>
+
+<div class="pane card"><p class="sh">六 · B　省电与稳定性（2 项 · 风险最高）</p>
+<table class="pc"><tbody>
+<tr><th>空闲 GPU 深度休眠<br>rtd3</th><td>N 卡空闲时进入最深的省电状态（runtime D3）。官方说功耗收益与唤醒表现还要先在工作室机器上测量才敢推荐。<br><b>建议</b>：<b>不建议开</b>。省下的电有限，但可能出现睡下去唤不醒、唤醒黑屏、驱动掉卡；排查起来也难。</td></tr>
+<tr><th>空闲链路省电<br>aspm</th><td>空闲时让 N 卡与主板的 PCIe 链路进入 ASPM L1 休眠，两端都支持才生效。驱动默认保持固件设定的链路状态，因为在未针对此设计的主板上，链路休眠<b>可能导致卡死或掉卡</b>。<br><b>建议</b>：<b>不建议开</b>。如果开了以后空闲时屏幕冻结，第一件事就是把它关掉。</td></tr>
+</tbody></table></div>
+
+<div class="pane card"><p class="sh">六 · C　图形与性能（6 项）</p>
+<table class="pc"><tbody>
+<tr><th>硬件光线查询<br>hwrt</th><td>用 NullMoth 自建的加速结构，在 N 卡的 RT 核心上执行光线查询，让支持 Metal 光追的应用获得硬件加速。<br><b>建议</b>：有 RT 核心的卡（Turing 及以后）且确实要跑光追应用时<b>可以试</b>；属于实验实现，可能画面错误或崩溃，普通桌面使用没必要开。</td></tr>
+<tr><th>光线追踪中的曲线图元<br>curves</th><td>让光线查询支持曲线图元，但走的是<b>软件遍历、速度较慢</b>，需配合上一项。<br><b>建议</b>：除非某个应用明确报「缺曲线图元」，否则<b>不用开</b>，开了只会更慢。</td></tr>
+<tr><th>Metal 瓦片着色<br>tile</th><td>为使用瓦片着色（tile shader）特性的应用启用该能力。<br><b>建议</b>：只对用到该特性的少数应用有效，桌面与多数游戏无感；不确定就<b>保持关闭</b>。</td></tr>
+<tr><th>GPU 编码的命令列表<br>icb</th><td>启用由 GPU 写入的间接命令缓冲（indirect command buffer），供特定渲染 / 计算应用使用。<br><b>建议</b>：同上，收益只出现在特定应用；实验性实现，遇到渲染异常先关它。</td></tr>
+<tr><th>AMD / Intel 视频解码<br>xvt</th><td>在 AMD 与 Intel GPU 上启用 AV1、VP9 硬件解码。<br><b>建议</b>：核显本身要支持对应格式才有意义（老核显没有 AV1 硬解）；播放 4K / AV1 视频遇到问题可以试，否则保持关闭。</td></tr>
+<tr><th>游戏 GPU 优先级<br>gameprio</th><td>提高游戏在 GPU 调度中的优先级，让游戏更容易抢到显卡资源。<br><b>建议</b>：相对温和、<b>可以试</b>；效果依负载而定，后台还在跑渲染 / 转码时更明显。</td></tr>
+</tbody></table></div>
+
+
+<div class="pane card"><p class="sh">七、装好驱动后的常见情况</p>
+<ul>
+<li>系统信息里显卡名称 / 显存由驱动注入，名称不标准不代表驱动没工作。</li>
+<li>Optimus 双显卡笔记本：内屏通常由核显驱动，外接 USB-C / HDMI 才直连 N 卡，属正常形态。</li>
+<li>建议保留 <b>-v</b> 详细启动模式，方便看启动报错。</li>
+<li>Lilu / AMFIPass 相关报错：先确认 kext 版本配套、SIP 与 SecureBootModel 设置。</li>
+<li>不要随意屏蔽核显或其他显卡，除非明确知道后果；下载驱动需要联网。</li>
+</ul></div>
+
+<div class="pane card"><p class="sh">八、汉化版专属注意事项（重要）</p>
+<p><b>应用更新已接入本汉化版维护者的自动更新</b>：点「本机」页的「检查汉化版更新」即可在应用内检查本仓库 Release（不需要打开网页），有新版时「更新应用」按钮出现，自动下载并用维护者密钥校验签名后重启；若检查失败，旁边的「打开发布页」可打开 <code>https://github.com/huangjinkun2006/1401/releases/latest</code> 手动下载。<b>驱动更新仍走 NullMoth 官方</b>（驱动包带官方签名），「检查驱动更新 / 更新驱动」照常使用，两者互不干扰。</p>
+<p class="small">若按仓库资源文件自行汉化，设置窗口标题栏仍是英文 Driver settings（标题写在可执行文件里），不影响使用。</p>
+<p><b>关于「该命令退出时状态为非零 (97)」</b>：1401 在执行需要管理员权限的操作前（发送日志、安装驱动、挂载 EFI、检查等），会用主程序内嵌的 SHA-256 清单逐个校验 <code>Contents/Resources</code> 里的文件，任一哈希不符就中止并退出 97。汉化版已经把这张清单同步成汉化后资源的哈希，所以提权功能可正常使用；但如果你自行替换或修改了这些资源文件，必须重新运行仓库里的 <code>zh-CN/tools/sync_bundle_hashes.py</code> 并重新签名，否则所有提权操作都会以 97 失败。官方原版不受影响，驱动本体与安装脚本也从未被改动。</p></div>
+
+<div class="pane card"><p class="sh">九、出问题怎么办</p>
+<p class="todo"><ol>
+<li>先看「问题检查」页给出的规则说明与修复步骤。</li>
+<li>重启时保留 -v，把启动日志贴进左侧「AI 日志解析」页，先看离线中文诊断。</li>
+<li>用「工具 · 挂载 EFI」把之前备份的 EFI 还原回去。</li>
+<li>启动菜单里的 1401: Remove NVIDIA driver 可一键移除驱动。</li>
+</ol></p></div>
+
+<div class="pane card"><p class="sh">十、AI 日志解析（汉化版新增）</p>
+<p>左侧栏「AI 日志解析」是汉化版额外加的排障助手，官方原版没有。把 -v 启动日志、panic / .ips 崩溃报告、OpenCore 日志或 1401 运行日志粘贴、拖入或选择文件，点「本地智能解析」即可得到中文结论：每条问题都附日志原文证据、原因解释与修复步骤，另有关键线索（boot-args、kext、版本、显卡相关行）。</p>
+<p><b>本地解析完全离线</b>，不联网、不上传，日志不会离开这台电脑。规则库覆盖 panic、Lilu / kext 加载失败、签名校验、显卡被屏蔽、Optimus / igpuproxy、ACPI、OpenCore 配置、下载与权限等 20 多类常见问题，结论只作排障参考。</p>
+<p>需要大模型通读时有两种方式：<b>方式 A</b> 在「接口设置」里填 OpenAI 兼容接口（DeepSeek / 通义千问 / Kimi / OpenAI / 本机 Ollama / 自定义）与自己的 API Key，点「AI 深度分析」；<b>方式 B（推荐，任何环境都能用）</b> 点「复制 AI 提示词」，再点「打开 AI 网页」粘贴进去。多数云端大模型不允许从本地网页直连（CORS），遇到报错请改用方式 B。密钥只保存在本机，点「清除设置」即可删除。</p>
+<p class="small">AI 提示词会自动带上本机检测信息与本地诊断摘要；日志过长时只截取开头、报错附近和结尾。改动 EFI 前仍要先备份，并保留 -v。</p></div>
+
+<p class="small">修改 EFI、安装第三方内核扩展有一定风险，务必先备份 EFI，一切后果自行承担。本汉化包为社区贡献，与 NullMoth 官方无隶属关系。</p>
+<p class="legal">© 2026 NullMoth Systems. NullMoth 和飞蛾标志是 NullMoth Systems 的商标。Required Notice: Copyright NullMoth Systems.</p>
 </section>
 
 </main>
 </div>
 </div>
 <script src="app.js"></script>
+<script src="ai_log.js"></script>
 </body></html>

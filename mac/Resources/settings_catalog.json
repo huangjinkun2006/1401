@@ -1,260 +1,260 @@
 {
- "block_end": "# --- end my settings ---",
- "block_start": "# --- my settings, kept on update ---",
- "conf_path": "/Library/GPUBundles/nvmtl/nvrm610.conf",
- "kept_pattern": "^(NVMTL|NVK|NVRM)_[A-Z0-9_]+=[A-Za-z0-9._,=*-]{0,160}$",
- "settings": [
-  {
-   "effect": "restart",
-   "group": "Display",
-   "help": "Advertise HDR10 to displays that list PQ in their EDID.",
-   "id": "hdr",
-   "key": "nvfbhdr",
-   "kind": "bool",
-   "rng": null,
-   "title": "HDR10",
-   "values": null,
-   "where": "bootarg"
-  },
-  {
-   "effect": "restart",
-   "group": "Display",
-   "help": "Scan out 30-bit surfaces on mode changes.",
-   "id": "10bit",
-   "key": "nvfb10bit",
-   "kind": "bool",
-   "rng": null,
-   "title": "10-bit colour",
-   "values": null,
-   "where": "bootarg"
-  },
-  {
-   "effect": "restart",
-   "group": "Display",
-   "help": "Let WindowServer request variable refresh on displays that support it.",
-   "id": "vrr",
-   "key": "nvfbvrr",
-   "kind": "bool",
-   "rng": null,
-   "title": "Variable refresh rate (G-Sync Compatible / Adaptive-Sync)",
-   "values": null,
-   "where": "bootarg"
-  },
-  {
-   "effect": "restart",
-   "group": "Display",
-   "help": "Bits per colour channel on the link; default lets the driver pick.",
-   "id": "bpc",
-   "key": "nvfbbpc",
-   "kind": "enum",
-   "rng": null,
-   "title": "Output colour depth",
-   "values": {
-    "10": "10",
-    "12": "12",
-    "6": "6",
-    "8": "8"
-   },
-   "where": "bootarg"
-  },
-  {
-   "effect": "restart",
-   "group": "Display",
-   "help": "Pixel format on the link; default lets the driver pick.",
-   "id": "format",
-   "key": "nvfbformat",
-   "kind": "enum",
-   "rng": null,
-   "title": "Output colour format",
-   "values": {
-    "rgb": "0",
-    "ycbcr422": "1",
-    "ycbcr444": "2"
-   },
-   "where": "bootarg"
-  },
-  {
-   "effect": "restart",
-   "group": "Display",
-   "help": "Full or limited RGB range; default lets the driver pick.",
-   "id": "range",
-   "key": "nvfbrange",
-   "kind": "enum",
-   "rng": null,
-   "title": "Output dynamic range",
-   "values": {
-    "full": "1",
-    "limited": "2"
-   },
-   "where": "bootarg"
-  },
-  {
-   "effect": "restart",
-   "group": "Display",
-   "help": "Saturation gain, 0 to 200; 100 leaves colours alone.",
-   "id": "vibrance",
-   "key": "nvfbvib",
-   "kind": "int",
-   "rng": [
-    0,
-    200
-   ],
-   "title": "Digital vibrance",
-   "values": null,
-   "where": "bootarg"
-  },
-  {
-   "effect": "restart",
-   "group": "Display",
-   "help": "Offer desktops larger than the panel and scale them down. Reserves scanout memory.",
-   "id": "dsr",
-   "key": "nvfbdsr",
-   "kind": "bool",
-   "rng": null,
-   "title": "Dynamic super resolution (render above the panel's resolution)",
-   "values": null,
-   "where": "bootarg"
-  },
-  {
-   "effect": "restart",
-   "group": "Display",
-   "help": "Back scaled modes with a desktop up to twice the panel raster.",
-   "id": "hidpi",
-   "key": "nvfbhidpi",
-   "kind": "bool",
-   "rng": null,
-   "title": "HiDPI 'looks like' modes",
-   "values": null,
-   "where": "bootarg"
-  },
-  {
-   "effect": "restart",
-   "group": "Display",
-   "help": "Offer extra resolutions on a rotated head.",
-   "id": "rotscale",
-   "key": "nvfbrotscale",
-   "kind": "bool",
-   "rng": null,
-   "title": "Scaled modes on rotated displays",
-   "values": null,
-   "where": "bootarg"
-  },
-  {
-   "effect": "restart",
-   "group": "Display",
-   "help": "Bit mask of framebuffer indices that form one logical display, for example 3 for the first two. 0 or default turns it off.",
-   "id": "surround",
-   "key": "nvfbsurround",
-   "kind": "int",
-   "rng": [
-    1,
-    255
-   ],
-   "title": "Surround (several displays as one)",
-   "values": null,
-   "where": "bootarg"
-  },
-  {
-   "effect": "restart",
-   "group": "Display",
-   "help": "On by default; off disables brightness control through the panel's AUX channel.",
-   "id": "edp-backlight",
-   "key": "nvfbedpbl",
-   "kind": "bool",
-   "rng": null,
-   "title": "Laptop panel brightness over the display link",
-   "values": null,
-   "where": "bootarg"
-  },
-  {
-   "effect": "relaunch the application",
-   "group": "Performance",
-   "help": "One number for every application (60) or a list per application (Game=60,*=0). 10 to 1000; 0 is unlimited. Never applies to WindowServer.",
-   "id": "fps-limit",
-   "key": "NVMTL_FPS_LIMIT",
-   "kind": "text",
-   "rng": null,
-   "title": "Frame-rate limit",
-   "values": null,
-   "where": "conf"
-  },
-  {
-   "effect": "restart",
-   "group": "Performance",
-   "help": "How many parts of GPU work may be queued ahead, 1 to 32 (default 16). A low number cuts input lag and can cost frame rate. Applies to every application, the desktop included.",
-   "id": "queue-depth",
-   "key": "NVMTL_GSUB_INFLIGHT",
-   "kind": "int",
-   "rng": [
-    1,
-    32
-   ],
-   "title": "Low-latency mode (GPU work queued ahead)",
-   "values": null,
-   "where": "conf"
-  },
-  {
-   "effect": "relaunch the application",
-   "group": "Performance",
-   "help": "Size at which the shader cache is trimmed (default 2048). 0 turns trimming off.",
-   "id": "shader-cache-mb",
-   "key": "NVMTL_SPVCACHE_MAX_MB",
-   "kind": "int",
-   "rng": [
-    64,
-    1000000
-   ],
-   "title": "Shader cache size limit (MB)",
-   "values": null,
-   "where": "conf"
-  },
-  {
-   "effect": "restart",
-   "group": "Performance",
-   "help": "Accelerate every NVIDIA card, one start-up at a time. A process drives one card: the primary, or the one assigned below.",
-   "id": "multigpu",
-   "key": "nvmultigpu",
-   "kind": "bool",
-   "rng": null,
-   "title": "More than one NVIDIA card (experimental)",
-   "values": null,
-   "where": "bootarg"
-  },
-  {
-   "effect": "relaunch the application",
-   "group": "Performance",
-   "help": "With more than one card: 0 is the primary, 1 the second and so on (up to 7), for every application (1) or per application (Game=1,*=0).",
-   "id": "card",
-   "key": "NVMTL_CARD",
-   "kind": "text",
-   "rng": null,
-   "title": "Card for an application",
-   "values": null,
-   "where": "conf"
-  },
-  {
-   "effect": "relaunch the application",
-   "group": "Performance",
-   "help": "On by default; off turns every shipped per-application profile off.",
-   "id": "app-profiles",
-   "key": "NVMTL_APP_PROFILE",
-   "kind": "bool",
-   "rng": null,
-   "title": "Built-in per-application profiles",
-   "values": null,
-   "where": "conf"
-  },
-  {
-   "effect": "restart",
-   "group": "Performance",
-   "help": "On by default for stability; off places it in video memory (faster in some games, unsafe for the desktop).",
-   "id": "local-map-sysmem",
-   "key": "NVK_LOCAL_MAP_SYSMEM",
-   "kind": "bool",
-   "rng": null,
-   "title": "Keep CPU-written memory in system RAM",
-   "values": null,
-   "where": "conf"
-  }
- ]
+  "block_end": "# --- end my settings ---",
+  "block_start": "# --- my settings, kept on update ---",
+  "conf_path": "/Library/GPUBundles/nvmtl/nvrm610.conf",
+  "kept_pattern": "^(NVMTL|NVK|NVRM)_[A-Z0-9_]+=[A-Za-z0-9._,=*-]{0,160}$",
+  "settings": [
+    {
+      "effect": "restart",
+      "group": "显示",
+      "help": "向在 EDID 中声明支持 PQ 的显示器宣告 HDR10 能力。",
+      "id": "hdr",
+      "key": "nvfbhdr",
+      "kind": "bool",
+      "rng": null,
+      "title": "HDR10",
+      "values": null,
+      "where": "bootarg"
+    },
+    {
+      "effect": "restart",
+      "group": "显示",
+      "help": "在显示模式切换时扫描输出 30 位色深画面。",
+      "id": "10bit",
+      "key": "nvfb10bit",
+      "kind": "bool",
+      "rng": null,
+      "title": "10 位色深",
+      "values": null,
+      "where": "bootarg"
+    },
+    {
+      "effect": "restart",
+      "group": "显示",
+      "help": "允许 WindowServer 对支持该功能的显示器请求可变刷新率。",
+      "id": "vrr",
+      "key": "nvfbvrr",
+      "kind": "bool",
+      "rng": null,
+      "title": "可变刷新率（G-Sync 兼容 / Adaptive-Sync）",
+      "values": null,
+      "where": "bootarg"
+    },
+    {
+      "effect": "restart",
+      "group": "显示",
+      "help": "链路上每个颜色通道的位数；默认由驱动自行决定。",
+      "id": "bpc",
+      "key": "nvfbbpc",
+      "kind": "enum",
+      "rng": null,
+      "title": "输出色深",
+      "values": {
+        "10": "10",
+        "12": "12",
+        "6": "6",
+        "8": "8"
+      },
+      "where": "bootarg"
+    },
+    {
+      "effect": "restart",
+      "group": "显示",
+      "help": "链路上的像素格式；默认由驱动自行决定。",
+      "id": "format",
+      "key": "nvfbformat",
+      "kind": "enum",
+      "rng": null,
+      "title": "输出颜色格式",
+      "values": {
+        "rgb": "0",
+        "ycbcr422": "1",
+        "ycbcr444": "2"
+      },
+      "where": "bootarg"
+    },
+    {
+      "effect": "restart",
+      "group": "显示",
+      "help": "完整或受限 RGB 范围；默认由驱动自行决定。",
+      "id": "range",
+      "key": "nvfbrange",
+      "kind": "enum",
+      "rng": null,
+      "title": "输出动态范围",
+      "values": {
+        "full": "1",
+        "limited": "2"
+      },
+      "where": "bootarg"
+    },
+    {
+      "effect": "restart",
+      "group": "显示",
+      "help": "饱和度增益，取值 0 到 200；100 表示不改变颜色。",
+      "id": "vibrance",
+      "key": "nvfbvib",
+      "kind": "int",
+      "rng": [
+        0,
+        200
+      ],
+      "title": "数字振动",
+      "values": null,
+      "where": "bootarg"
+    },
+    {
+      "effect": "restart",
+      "group": "显示",
+      "help": "提供比面板物理分辨率更大的桌面并缩放输出，会占用扫描输出显存。",
+      "id": "dsr",
+      "key": "nvfbdsr",
+      "kind": "bool",
+      "rng": null,
+      "title": "动态超级分辨率（以高于面板的分辨率渲染）",
+      "values": null,
+      "where": "bootarg"
+    },
+    {
+      "effect": "restart",
+      "group": "显示",
+      "help": "为缩放模式提供最高两倍于面板栅格的桌面。",
+      "id": "hidpi",
+      "key": "nvfbhidpi",
+      "kind": "bool",
+      "rng": null,
+      "title": "HiDPI「看起来像」模式",
+      "values": null,
+      "where": "bootarg"
+    },
+    {
+      "effect": "restart",
+      "group": "显示",
+      "help": "在旋转的输出口上提供额外的分辨率。",
+      "id": "rotscale",
+      "key": "nvfbrotscale",
+      "kind": "bool",
+      "rng": null,
+      "title": "旋转显示器上的缩放模式",
+      "values": null,
+      "where": "bootarg"
+    },
+    {
+      "effect": "restart",
+      "group": "显示",
+      "help": "组成单一逻辑显示器的帧缓冲索引位掩码，例如 3 表示前两台。设为 0 或默认即关闭。",
+      "id": "surround",
+      "key": "nvfbsurround",
+      "kind": "int",
+      "rng": [
+        1,
+        255
+      ],
+      "title": "环视（多台显示器合并为一台）",
+      "values": null,
+      "where": "bootarg"
+    },
+    {
+      "effect": "restart",
+      "group": "显示",
+      "help": "默认开启；关闭后无法通过面板 AUX 通道调节亮度。",
+      "id": "edp-backlight",
+      "key": "nvfbedpbl",
+      "kind": "bool",
+      "rng": null,
+      "title": "通过显示链路控制笔记本面板亮度",
+      "values": null,
+      "where": "bootarg"
+    },
+    {
+      "effect": "relaunch the application",
+      "group": "性能",
+      "help": "对所有应用统一设一个数值（如 60），或按应用列表设置（Game=60,*=0）。范围 10 到 1000；0 为不限制。对 WindowServer 永不生效。",
+      "id": "fps-limit",
+      "key": "NVMTL_FPS_LIMIT",
+      "kind": "text",
+      "rng": null,
+      "title": "帧率上限",
+      "values": null,
+      "where": "conf"
+    },
+    {
+      "effect": "restart",
+      "group": "性能",
+      "help": "允许预排队的 GPU 工作份数，1 到 32（默认 16）。数值越小输入延迟越低，但可能损失帧率。对所有应用生效，包括桌面。",
+      "id": "queue-depth",
+      "key": "NVMTL_GSUB_INFLIGHT",
+      "kind": "int",
+      "rng": [
+        1,
+        32
+      ],
+      "title": "低延迟模式（GPU 预排队工作量）",
+      "values": null,
+      "where": "conf"
+    },
+    {
+      "effect": "relaunch the application",
+      "group": "性能",
+      "help": "触发着色器缓存清理的容量阈值（默认 2048）。设为 0 可关闭清理。",
+      "id": "shader-cache-mb",
+      "key": "NVMTL_SPVCACHE_MAX_MB",
+      "kind": "int",
+      "rng": [
+        64,
+        1000000
+      ],
+      "title": "着色器缓存大小上限（MB）",
+      "values": null,
+      "where": "conf"
+    },
+    {
+      "effect": "restart",
+      "group": "性能",
+      "help": "逐张依次加速每张 NVIDIA 卡。一个进程只驱动一张卡：主卡，或下方指定的卡。",
+      "id": "multigpu",
+      "key": "nvmultigpu",
+      "kind": "bool",
+      "rng": null,
+      "title": "多张 NVIDIA 显卡（实验性）",
+      "values": null,
+      "where": "bootarg"
+    },
+    {
+      "effect": "relaunch the application",
+      "group": "性能",
+      "help": "有多张卡时：0 为主卡，1 为第二张，依此类推（最多 7）。可对所有应用统一设置（如 1），或按应用设置（Game=1,*=0）。",
+      "id": "card",
+      "key": "NVMTL_CARD",
+      "kind": "text",
+      "rng": null,
+      "title": "为应用指定显卡",
+      "values": null,
+      "where": "conf"
+    },
+    {
+      "effect": "relaunch the application",
+      "group": "性能",
+      "help": "默认开启；关闭后所有随驱动附带的按应用配置都会停用。",
+      "id": "app-profiles",
+      "key": "NVMTL_APP_PROFILE",
+      "kind": "bool",
+      "rng": null,
+      "title": "内置按应用配置",
+      "values": null,
+      "where": "conf"
+    },
+    {
+      "effect": "restart",
+      "group": "性能",
+      "help": "默认开启以保证稳定性；关闭后会放入显存（部分游戏更快，但对桌面不安全）。",
+      "id": "local-map-sysmem",
+      "key": "NVK_LOCAL_MAP_SYSMEM",
+      "kind": "bool",
+      "rng": null,
+      "title": "将 CPU 写入的内存保留在系统内存",
+      "values": null,
+      "where": "conf"
+    }
+  ]
 }
